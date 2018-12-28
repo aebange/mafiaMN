@@ -1,9 +1,10 @@
-from time import sleep
-from colorama import init, Fore, Back, Style
-import sys
-import pyglet
 import os
 import random
+import sys
+from time import sleep
+
+import pyglet
+from colorama import init, Fore
 
 ## Dependencies list
 # pip install pyglet
@@ -15,12 +16,13 @@ init(convert=True)
 # Used to fetch current working directory of filesystem
 cwd = os.getcwd()
 # Used to fetch sound file locations
-newLineBeep = pyglet.resource.media("sounds/misc/newLineBeep1.wav",streaming=False)
+newLineBeep = pyglet.resource.media("sounds/misc/newLineBeep1.wav", streaming=False)
 
 
 def startup():
     type_writer("Welcome to ", "WHITE")
     pass
+
 
 ########################################################################################################################
 # ROLES AND USER RELATED FUNCTIONS
@@ -53,13 +55,13 @@ class Role:
 
 # Define Town Roles
 citizen = Role(
-    "Citizen",              # Name (What the role is called)
-    ["Town"],               # Affiliation (How the role wins)
-    ["Town Government"],    # Type (What the role does)
-    ["Bulletproof Vest"],   # Abilities (What the role can do at night)
-    "1",                    # Uses (How many times the ability can be used)
-    ["None"],               # Immunities (What the role cant be killed or detected by at night)
-    ["None"],               # Traits (Special details about the role)
+    "Citizen",  # Name (What the role is called)
+    ["Town"],  # Affiliation (How the role wins)
+    ["Town Government"],  # Type (What the role does)
+    ["Bulletproof Vest"],  # Abilities (What the role can do at night)
+    "1",  # Uses (How many times the ability can be used)
+    ["None"],  # Immunities (What the role cant be killed or detected by at night)
+    ["None"],  # Traits (Special details about the role)
     "A regular person who believes in truth and justice.")
 
 bodyguard = Role(
@@ -132,7 +134,6 @@ vigilante = Role(
     ["None"],
     "A dirty ex-cop who will ignore the law to enact justice.")
 
-
 # Define Neutral Roles
 serial_killer = Role(
     "Serial Killer",
@@ -142,13 +143,13 @@ serial_killer = Role(
     "INF",
     ["Detect Immune"],
     ["None"],
-    "A dirty ex-cop who will ignore the law to enact justice.")
+    "A deranged criminal who hates the world.")
+
 # Define Mafia Roles
 
-
 # Included roles
-townRolesList = [citizen,bodyguard,lookout,escort,doctor,sheriff,mayor,vigilante]
-neutralRolesList = []
+townRolesList = [citizen, bodyguard, lookout, escort, doctor, sheriff, mayor, vigilante]
+neutralRolesList = [serial_killer]
 mafiaRolesList = []
 
 
@@ -162,8 +163,8 @@ def generate_click_list():
     click_list = []
     i = 0
     while True:
-        i+=1
-        temp = pyglet.resource.media("sounds/clicks/keyboardTyping%d.wav" % i,streaming=False)
+        i += 1
+        temp = pyglet.resource.media("sounds/clicks/keyboardTyping%d.wav" % i, streaming=False)
         click_list.append(temp)
         if i == 11:
             return click_list
@@ -188,11 +189,11 @@ def type_writer(string, color):
             random.choice(clickList).play()
             print(x)
             sys.stdout.flush()
-            print("\n",end='')
+            print("\n", end='')
             sleep(.4)
         else:
             random.choice(clickList).play()
-            print(x,end='')
+            print(x, end='')
             sys.stdout.flush()
             sleep(.02)
 
