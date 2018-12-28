@@ -1,0 +1,7 @@
+TOWN TRAITS
+    Self-Target - Allows the user to target themselves with their night ability
+        Lookout
+    Ignore Detection Immunity - Allows the user to identify who visited someone regardless of their detection immunity
+        Lookout
+    Attack Alert - Allows the user to know when their target has been attacked
+        Doctor

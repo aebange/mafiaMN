@@ -1,0 +1,17 @@
+TOWN ABILITIES
+    Watch - Observe who visits one person each night.
+        Lookout
+    Bulletproof Vest - Protect yourself from attacks each night (ignored by arson).
+        Citizen
+    Guard - Protect one person each night from 1 attack, if the target is attacked then both you and the killer will die (ignored by arson)
+        Body Guard
+    Role block - Prevent one person each night from completing their task, they will know they have been blocked.
+        Escort
+    Heal - Protect one person each night from 1 attack. If the target is attacked 1 time, they will be healed. The victim will know they've been healed.
+        Doctor
+    Check Affiliation - Check the affiliation of one player each night. Does NOT bypass detect immunity
+        Sheriff
+    Day Reveal - Announce that you are the mayor during the day, gaining additional votes thereafter (number of votes is equal to 1/4th the number of players left).
+        Mayor
+    Murder - Attempt to murder one person each night.
+        Vigilante

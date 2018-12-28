@@ -29,12 +29,13 @@ def startup():
 
 # Create the class structure for players
 class Player:
-    def __init__(self, name, number, role, living, status):
+    def __init__(self, name, number, role, living, status, last_will):
         self.name = name
         self.number = number
         self.role = role
         self.living = living
         self.status = status
+        self.last_will = last_will
 
 
 # Create the class structure for roles
@@ -54,7 +55,7 @@ class Role:
 citizen = Role(
     "Citizen",              # Name (What the role is called)
     ["Town"],               # Affiliation (How the role wins)
-    ["Government"],         # Type (What the role does)
+    ["Town Government"],    # Type (What the role does)
     ["Bulletproof Vest"],   # Abilities (What the role can do at night)
     "1",                    # Uses (How many times the ability can be used)
     ["None"],               # Immunities (What the role cant be killed or detected by at night)
@@ -62,37 +63,93 @@ citizen = Role(
     "A regular person who believes in truth and justice.")
 
 bodyguard = Role(
-    "Bodyguard",            # Name (What the role is called)
-    ["Town"],               # Affiliation (How the role wins)
-    ["Protective"],         # Type (What the role does)
-    ["Guard"],              # Abilities (What the role can do at night)
-    "INF",                  # Uses (How many times the ability can be used)
-    ["None"],               # Immunities (What the role cant be killed or detected by at night)
-    ["No-Heal"],            # Traits (Special details about the role)
+    "Bodyguard",
+    ["Town"],
+    ["Town Protective"],
+    ["Guard"],
+    "INF",
+    ["None"],
+    ["Heal Immune"],
     "A war veteran who secretly makes a living by selling protection.")
 
 lookout = Role(
-    "Lookout",              # Name (What the role is called)
-    ["Town"],               # Affiliation (How the role wins)
-    ["Investigative"],      # Type (What the role does)
-    ["Watch"],              # Abilities (What the role can do at night)
-    "INF",                  # Uses (How many times the ability can be used)
-    ["None"],               # Immunities (What the role cant be killed or detected by at night)
-    ["Self-Target"],        # Traits (Special details about the role)
+    "Lookout",
+    ["Town"],
+    ["Town Investigative"],
+    ["Watch"],
+    "INF",
+    ["None"],
+    ["Self-Target", "Ignore Detection Immunity"],
     "A war veteran who secretly makes a living by selling protection.")
 
+escort = Role(
+    "Escort",
+    ["Town"],
+    ["Town Protective"],
+    ["Role-block"],
+    "INF",
+    ["None"],
+    ["None"],
+    "A scantily-clad escort, working in secret.")
+
+doctor = Role(
+    "Doctor",
+    ["Town"],
+    ["Town Protective"],
+    ["Heal"],
+    "INF",
+    ["None"],
+    ["Attack Alert"],
+    "A secret surgeon skilled in trauma care.")
+
+sheriff = Role(
+    "Sheriff",
+    ["Town"],
+    ["Town Investigative"],
+    ["Check Affiliation"],
+    "INF",
+    ["None"],
+    ["None"],
+    "A member of law enforcement, forced into hiding because of the threat of murder.")
+
+mayor = Role(
+    "Mayor",
+    ["Town"],
+    ["Town Government"],
+    ["Day Reveal"],
+    "1",
+    ["Heal Immune"],
+    ["None"],
+    "The governor of the town, hiding in anonymity to avoid assassination.")
+
+vigilante = Role(
+    "Vigilante",
+    ["Town"],
+    ["Town Killing"],
+    ["Murder"],
+    "2",
+    ["Heal Immune"],
+    ["None"],
+    "A dirty ex-cop who will ignore the law to enact justice.")
 
 
 # Define Neutral Roles
-
+serial_killer = Role(
+    "Serial Killer",
+    ["Solo"],
+    ["Neutral Killing"],
+    ["Murder"],
+    "INF",
+    ["Detect Immune"],
+    ["None"],
+    "A dirty ex-cop who will ignore the law to enact justice.")
 # Define Mafia Roles
 
 
 # Included roles
-townRolesList = [citizen,bodyguard]
+townRolesList = [citizen,bodyguard,lookout,escort,doctor,sheriff,mayor,vigilante]
 neutralRolesList = []
 mafiaRolesList = []
-
 
 
 ########################################################################################################################
@@ -101,7 +158,7 @@ mafiaRolesList = []
 
 
 # Generate a list of the paths to utilized audio
-def generate_clicklist():
+def generate_click_list():
     click_list = []
     i = 0
     while True:
@@ -142,7 +199,7 @@ def type_writer(string, color):
 
 ########################################################################################################################
 
-clickList = generate_clicklist()
+clickList = generate_click_list()
 
 type_writer("Simon was Killed last night.", "WHITE")
 type_writer("He had several stabs about his torso and was dragged outside into the street.", "WHITE")

@@ -1,0 +1,4 @@
+TOWN IMMUNITIES
+    Heal Immune - Prevents the user from being healed
+        Bodyguard
+        Mayor
