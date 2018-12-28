@@ -1,0 +1,7 @@
+TOWN ABILITIES
+    Watch - Observe who visits one person each night
+        Lookout
+    Bulletproof Vest - Protect yourself from attacks each night (ignored by arson)
+        Citizen
+    Guard - Protect one person each night, if the target is attacked then both you and the killer will die (ignored by arson)
+        Body Guard
