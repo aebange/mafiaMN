@@ -20,11 +20,12 @@ newLineBeep = pyglet.resource.media("sounds/misc/newLineBeep1.wav", streaming=Fa
 
 
 def startup():
-    type_writer("Welcome to "), print(Fore.RED + "MAFIA.")
+    type_writer("Welcome to ",delay=.1), print(Fore.RED + "MAFIA.")
+    sleep(1)
     type_writer("A game by Alex Bange.", beep=False)
-    user1 = Player("Alex", "1", doctor, "Alive", "Well", "")
+    user1 = Player("Alex", "1", vigilante, "Alive", "Well", "")
     type_writer("Good evening "), print(user1.name + "."), type_writer("Your role is ",beep=False), print(Fore.GREEN + str(user1.role.name) + ".")
-    type_writer("You are " + str(user1.role.description))
+    type_writer(user1.role.summary())
 
 
 ########################################################################################################################
@@ -45,7 +46,7 @@ class Player:
 
 # Create the class structure for roles
 class Role:
-    def __init__(self, name, alignment, type, night_abilities, uses, immunities, traits, description):
+    def __init__(self, name, alignment, type, night_abilities, uses, immunities, traits, description,):
         self.name = name
         self.alignment = alignment
         self.type = type
@@ -54,99 +55,122 @@ class Role:
         self.immunities = immunities
         self.traits = traits
         self.description = description
+        self.objective = "Awaiting instantiation in def summary line 59..."
+
+    def summary(self):
+        if self.alignment == "Town":
+            self.objective = objectiveList[0]
+        elif self.alignment == "Mafia":
+            self.objective = objectiveList[1]
+        elif self.alignment == "Serial Killer":
+            self.objective == objectiveList[2]
+        elif self.alignment == "Any":
+            self.objective == objectiveList[3]
+        elif self.alignment == "Evil":
+            self.objective == objectiveList[4]
+        else:
+            print("ERROR: INVALID self.alignment OF '%s' HAS ATTEMPTED TO PASS THROUGH def summary(self) LINE 59." % str(self.alignment))
+        return "You are {} aligned with the {}.To win, you must {}".format(self.description, self.alignment, self.objective)
+
+
+# Define alignment objectives
+objectiveList = ["lynch all criminals and evildoers to restore justice to the town.",
+                 "lynch and murder all of those who would oppose the mafia.",
+                 "lynch and murder everyone in the town to make the world PERFECT.",
+                 "survive until a victor has emerged."]
 
 
 # Define Town Roles
 citizen = Role(
     "Citizen",  # Name (What the role is called)
-    ["Town"],  # Affiliation (How the role wins)
+    "Town",  # Affiliation (How the role wins)
     ["Town Government"],  # Type (What the role does)
     ["Bulletproof Vest"],  # Abilities (What the role can do at night)
     "1",  # Uses (How many times the ability can be used)
     ["None"],  # Immunities (What the role cant be killed or detected by at night)
     ["None"],  # Traits (Special details about the role)
-    "A regular person who believes in truth and justice.")
+    "a regular person who believes in truth and justice")  # Summary (A lore-based description of the role)
 
 bodyguard = Role(
     "Bodyguard",
-    ["Town"],
+    "Town",
     ["Town Protective"],
     ["Guard"],
     "INF",
     ["None"],
     ["Heal Immune"],
-    "A war veteran who secretly makes a living by selling protection.")
+    "a war veteran who secretly makes a living by selling protection")
 
 lookout = Role(
     "Lookout",
-    ["Town"],
+    "Town",
     ["Town Investigative"],
     ["Watch"],
     "INF",
     ["None"],
     ["Self-Target", "Ignore Detection Immunity"],
-    "A war veteran who secretly makes a living by selling protection.")
+    "a war veteran who secretly makes a living by selling protection")
 
 escort = Role(
     "Escort",
-    ["Town"],
+    "Town",
     ["Town Protective"],
     ["Role-block"],
     "INF",
     ["None"],
     ["None"],
-    "A scantily-clad escort, working in secret.")
+    "a scantily-clad escort, working in secret")
 
 doctor = Role(
     "Doctor",
-    ["Town"],
+    "Town",
     ["Town Protective"],
     ["Heal"],
     "INF",
     ["None"],
     ["Attack Alert"],
-    "A secret surgeon skilled in trauma care.")
+    "a secret surgeon skilled in trauma care")
 
 sheriff = Role(
     "Sheriff",
-    ["Town"],
+    "Town",
     ["Town Investigative"],
     ["Check Affiliation"],
     "INF",
     ["None"],
     ["None"],
-    "A member of law enforcement, forced into hiding because of the threat of murder.")
+    "a member of law enforcement, forced into hiding because of the threat of murder")
 
 mayor = Role(
     "Mayor",
-    ["Town"],
+    "Town",
     ["Town Government"],
     ["Day Reveal"],
     "1",
     ["Heal Immune"],
     ["None"],
-    "The governor of the town, hiding in anonymity to avoid assassination.")
+    "the governor of the town, hiding in anonymity to avoid assassination")
 
 vigilante = Role(
     "Vigilante",
-    ["Town"],
+    "Town",
     ["Town Killing"],
     ["Murder"],
     "2",
     ["Heal Immune"],
     ["None"],
-    "A dirty ex-cop who will ignore the law to enact justice.")
+    "a dirty ex-cop who will ignore the law to enact justice")
 
 # Define Neutral Roles
 serial_killer = Role(
     "Serial Killer",
-    ["Solo"],
+    "Serial Killer",
     ["Neutral Killing"],
     ["Murder"],
     "INF",
     ["Detect Immune"],
     ["None"],
-    "A deranged criminal who hates the world.")
+    "a deranged criminal who hates the world")
 
 # Define Mafia Roles
 

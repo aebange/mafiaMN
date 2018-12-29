@@ -1,4 +1,4 @@
 Town - Win by lynching all evildoers and criminals
 Mafia - Win by lynching everyone that isn't in the mafia
-Solo - Win by killing everyone
+Serial Killer - Win by killing everyone
 Any - Win by surviving
