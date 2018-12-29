@@ -2,3 +2,9 @@ TOWN IMMUNITIES
     Heal Immune - Prevents the user from being healed
         Bodyguard
         Mayor
+
+NEUTRAL IMMUNITIES
+    Night Immune - Cannot be killed at night (ignored by arsonist)
+        Serial Killer
+    Detect Immune - Role cannot be revealed by night abilities (ignored by lookout)
+        Serial Killer
