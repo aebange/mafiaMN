@@ -20,8 +20,11 @@ newLineBeep = pyglet.resource.media("sounds/misc/newLineBeep1.wav", streaming=Fa
 
 
 def startup():
-    type_writer("Welcome to ", "WHITE")
-    pass
+    type_writer("Welcome to "), print(Fore.RED + "MAFIA.")
+    type_writer("A game by Alex Bange.", beep=False)
+    user1 = Player("Alex", "1", doctor, "Alive", "Well", "")
+    type_writer("Good evening "), print(user1.name + "."), type_writer("Your role is ",beep=False), print(Fore.GREEN + str(user1.role.name) + ".")
+    type_writer("You are " + str(user1.role.description))
 
 
 ########################################################################################################################
@@ -173,13 +176,23 @@ def generate_click_list():
 
 
 # Types out provided strings of text with sound
-def type_writer(string, color):
-    newLineBeep.play()
-    sleep(.2)
-    if color == "WHITE":
+# By default, writing color is white with a typing delay of .02
+def type_writer(string, beep=True, color="W", delay=.02):
+    if beep:
+        newLineBeep.play()
+        sleep(.4)
+    else:
+        pass
+    if color == "W":
         print(Fore.WHITE)
-    elif color == "RED":
+    elif color == "R":
         print(Fore.RED)
+    elif color == "G":
+        print(Fore.GREEN)
+    elif color == "O":
+        print(Fore.ORANGE)
+    elif color == "B":
+        print(Fore.BLUE)
     else:
         pass
 
@@ -195,16 +208,13 @@ def type_writer(string, color):
             random.choice(clickList).play()
             print(x, end='')
             sys.stdout.flush()
-            sleep(.02)
+            sleep(delay)
 
 
 ########################################################################################################################
 
 clickList = generate_click_list()
 
-type_writer("Simon was Killed last night.", "WHITE")
-type_writer("He had several stabs about his torso and was dragged outside into the street.", "WHITE")
-type_writer("His role was ", "WHITE")
-print(Fore.RED + "Arsonist.")
+startup()
 
 input()
