@@ -17,13 +17,15 @@ init(convert=True)
 cwd = os.getcwd()
 # Used to fetch sound file locations
 newLineBeep = pyglet.resource.media("sounds/misc/newLineBeep1.wav", streaming=False)
+sniperShot2 = pyglet.resource.media("sounds/gunshots/sniperShot2.wav", streaming=False)
 
 
 def startup():
-    type_writer("Welcome to ",delay=.1), print(Fore.RED + "MAFIA.")
+    type_writer("Welcome to ", delay=.1), sleep(1), print(Fore.RED + "MAFIA.")
+    sniperShot2.play()
     sleep(1)
-    type_writer("A game by Alex Bange.", beep=False)
-    user1 = Player("Alex", "1", serial_killer, "Alive", "Well", "")
+    type_writer("A game by some dumbass.", beep=False)
+    user1 = Player("Alex", "1", sheriff, "Alive", "Well", "")
     type_writer("Good evening "), print(user1.name + "."), type_writer("Your role is ",beep=False), print((user1.role.role_color()) + str(user1.role.name) + "."), print(Back.RESET)
     type_writer(user1.role.summary())
 
@@ -31,7 +33,6 @@ def startup():
 ########################################################################################################################
 # ROLES AND USER RELATED FUNCTIONS
 ########################################################################################################################
-
 
 # Create the class structure for players
 class Player:
@@ -76,8 +77,8 @@ class Role:
 
     def role_color(self):
         if self.alignment == "Town":
-            self.color = Fore.GREEN
-            self.back = Fore.BLACK
+            self.color = Fore.WHITE
+            self.back = Fore.GREEN
         elif self.alignment == "Mafia":
             self.color = Fore.RED
             self.back = Fore.BLACK
@@ -206,7 +207,6 @@ mafiaRolesList = []
 # VISUAL AND AUDIO EFFECT RELATED FUNCTIONS
 ########################################################################################################################
 
-
 # Generate a list of the paths to utilized audio
 def generate_click_list():
     click_list = []
@@ -258,9 +258,47 @@ def type_writer(string, beep=True, color="W", delay=.02):
 
 
 ########################################################################################################################
+# GAME MECHANIC FUNCTIONS
+########################################################################################################################
+
+# Identify and define users, instantiating their classes
+def user_identification():
+    i = 0
+    player_list = []
+    while True:
+        current_player = Player("AWAITING_INSTANTIATION", i, "NULL", "Living", "Well", " ")
+        print("Would you like to add a new player?")
+        input_choice = input()
+        if input_choice.lower() == "yes":
+            print("Please enter a name for this person:")
+            current_player.name = (str(input()))
+            player_list.append(current_player)
+            print("{0} has been added to the game as player {1}".format(current_player.name, i))
+            os.system('cls')
+            i += 1
+        else:
+            os.system('cls')
+            return player_list
+
+
+# Assign relevant roles to the users
+# Pass this function the playerList and a list containing all relevant roles
+def user_role_distribution(players, roles):
+    i = 0
+    shuffled_roles = random.sample(roles, len(roles))
+    for player in players:
+        player.role = shuffled_roles[i]
+        print(player.name + " is now a " + player.role.name)
+        i += 1
+
+
+########################################################################################################################
+# CODE EXECUTION
+########################################################################################################################
 
 clickList = generate_click_list()
+playerList = user_identification()
+user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRolesList))
 
-startup()
-
+# startup()
 input()
