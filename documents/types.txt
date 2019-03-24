@@ -1,0 +1,18 @@
+Town Government
+	Citizen
+	Mayor
+
+Town Protective
+	Bodyguard
+	Doctor
+	Escort
+
+Town Investigative
+	Lookout
+	Sheriff
+
+Town Killing
+	Vigilante
+
+Neutral Killing
+	Serial Killer
