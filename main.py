@@ -18,16 +18,15 @@ cwd = os.getcwd()
 # Used to fetch sound file locations
 newLineBeep = pyglet.resource.media("sounds/misc/newLineBeep1.wav", streaming=False)
 sniperShot2 = pyglet.resource.media("sounds/gunshots/sniperShot2.wav", streaming=False)
+goodNightBell = pyglet.resource.media("sounds/misc/goodNightBell.wav", streaming=False)
+nightSequence1 = pyglet.resource.media("sounds/music/nightSequence1.wav", streaming=False)
+nightSequence2 = pyglet.resource.media("sounds/music/nightSequence2.wav", streaming=False)
+nightSequence3 = pyglet.resource.media("sounds/music/nightSequence3.wav", streaming=False)
+nightSequence4 = pyglet.resource.media("sounds/music/nightSequence4.wav", streaming=False)
+nightSequence5 = pyglet.resource.media("sounds/music/nightSequence5.wav", streaming=False)
+nightSequence6 = pyglet.resource.media("sounds/music/nightSequence6.wav", streaming=False)
 
-
-def startup():
-    type_writer("Welcome to ", delay=.1), sleep(1), print(Fore.RED + "MAFIA.")
-    sniperShot2.play()
-    sleep(1)
-    type_writer("A game by some dumbass.", beep=False)
-    user1 = Player("Alex", "1", sheriff, "Alive", "Well", "")
-    type_writer("Good evening "), print(user1.name + "."), type_writer("Your role is ",beep=False), print((user1.role.role_color()) + str(user1.role.name) + "."), print(Back.RESET)
-    type_writer(user1.role.summary())
+nightNumber = 1
 
 
 ########################################################################################################################
@@ -47,7 +46,7 @@ class Player:
 
 # Create the class structure for roles
 class Role:
-    def __init__(self, name, alignment, type, night_abilities, uses, immunities, traits, description):
+    def __init__(self, name, alignment, type, night_abilities, uses, immunities, traits, description, hint):
         self.name = name
         self.alignment = alignment
         self.type = type
@@ -56,6 +55,7 @@ class Role:
         self.immunities = immunities
         self.traits = traits
         self.description = description
+        self.hint = hint
         self.objective = "Awaiting instantiation in def summary line 59..."
         self.color = Fore.WHITE
         self.back = Back.BLACK
@@ -112,7 +112,8 @@ citizen = Role(
     "1",  # Uses (How many times the ability can be used)
     ["None"],  # Immunities (What the role cant be killed or detected by at night)
     ["None"],  # Traits (Special details about the role)
-    "a regular person who believes in truth and justice,")  # Summary (A lore-based description of the role)
+    "a regular person who believes in truth and justice,",  # Summary (A lore-based description of the role)
+    "The Citizen has a Bulletproof Vest that can be used to save them from death only ONCE each night. If you are attacked by multiple people however, you will die. Be conservative as your vest may have limited uses!")
 
 bodyguard = Role(
     "Bodyguard",
@@ -122,7 +123,8 @@ bodyguard = Role(
     "INF",
     ["None"],
     ["Heal Immune"],
-    "a war veteran who secretly makes a living by selling protection,")
+    "a war veteran who secretly makes a living by selling protection,",
+    "The bodyguard can guard one person each night. If that person is attacked while you are protecting them, both you and the attacker will die, but your protectee will be spared - EVEN if they aren't town.")
 
 lookout = Role(
     "Lookout",
@@ -132,7 +134,8 @@ lookout = Role(
     "INF",
     ["None"],
     ["Self-Target", "Ignore Detection Immunity"],
-    "a war veteran who secretly makes a living by selling protection,")
+    "a war veteran who secretly makes a living by selling protection,",
+    "The lookout can stake out at one person's house each night to see who visits them. Remember, not only evil players may be visiting other's houses.")
 
 escort = Role(
     "Escort",
@@ -142,7 +145,8 @@ escort = Role(
     "INF",
     ["None"],
     ["None"],
-    "a scantily-clad escort, working in secret,")
+    "a scantily-clad escort, working in secret,",
+    "The escort can visit one person's house each night, giving them such a good time that they are role-blocked for that night and cannot complete any actions.")
 
 doctor = Role(
     "Doctor",
@@ -152,7 +156,8 @@ doctor = Role(
     "INF",
     ["None"],
     ["Attack Alert"],
-    "a secret surgeon skilled in trauma care,")
+    "a secret surgeon skilled in trauma care,",
+    "The doctor can guard one person each night. If that person is attacked while you are protecting them, you will heal them back to health after the attacker has left.")
 
 sheriff = Role(
     "Sheriff",
@@ -162,7 +167,8 @@ sheriff = Role(
     "INF",
     ["None"],
     ["None"],
-    "a member of law enforcement, forced into hiding because of the threat of murder,")
+    "a member of law enforcement, forced into hiding because of the threat of murder,",
+    "The sheriff can investigate one person's house each night, identifying who they are affiliated with. Beware however, for you will be a prime target for murder once you reveal your findings to your friends.")
 
 mayor = Role(
     "Mayor",
@@ -172,7 +178,8 @@ mayor = Role(
     "1",
     ["Heal Immune"],
     ["None"],
-    "the governor of the town, hiding in anonymity to avoid assassination,")
+    "the governor of the town, hiding in anonymity to avoid assassination,",
+    "The mayor has no night abilities, but can reveal himself during the day, increasing the value of his vote significantly and confirming to the other players that he is indeed the mayor. Use this power to lead the town.")
 
 vigilante = Role(
     "Vigilante",
@@ -182,7 +189,8 @@ vigilante = Role(
     "2",
     ["Heal Immune"],
     ["None"],
-    "a dirty ex-cop who will ignore the law to enact justice,")
+    "a dirty ex-cop who will ignore the law to enact justice,",
+    "The vigilante can choose to murder one person each night. This will not kill anyone who has night immunity - like the Serial Killer, but can work on weaker roles. This ability can kill town members too. Be conservative with your gun, you only have so many bullets.")
 
 # Define Neutral Roles
 serial_killer = Role(
@@ -193,9 +201,9 @@ serial_killer = Role(
     "INF",
     ["Detect Immune","Night Immune"],
     ["None"],
-    "a deranged criminal who hates the world,")
+    "a deranged criminal who hates the world,",
+    "The serial killer can choose to murder one person each night. You are night-immune and can only die by suicide or hanging during the day. Try to target roles who will lead the town to discovering you first.")
 
-# Define Mafia Roles
 
 # Included roles
 townRolesList = [citizen, bodyguard, lookout, escort, doctor, sheriff, mayor, vigilante]
@@ -292,6 +300,30 @@ def user_role_distribution(players, roles):
         i += 1
 
 
+# Start the game and explain the rules
+def startup():
+    type_writer("Welcome to ", delay=.1), sleep(1), print(Fore.RED + "MAFIA.")
+    sniperShot2.play()
+    sleep(1)
+    type_writer("We will begin by informing the participants of their occupations.", beep=True)
+    sleep(3)
+    goodNightBell.play()
+    sleep(3)
+    os.system('cls')
+
+
+# Run through the first night
+def first_night():
+    music_list = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nightSequence5, nightSequence6]
+    music_list[nightNumber].play()
+    for item in playerList:
+        if item.living:
+            print("Good evening {0}, you are a {1}".format(item.name, item.role.name))
+            print("As a {0}, you are {1}".format(item.role.name, item.role.description))
+            print(item.role.hint)
+            input()
+            os.system('cls')
+
 ########################################################################################################################
 # CODE EXECUTION
 ########################################################################################################################
@@ -300,5 +332,6 @@ clickList = generate_click_list()
 playerList = user_identification()
 user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRolesList))
 
-# startup()
+startup()
+first_night()
 input()
