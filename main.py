@@ -17,6 +17,7 @@ init(convert=True)
 # Used to fetch current working directory of filesystem
 cwd = os.getcwd()
 # Used to fetch sound file locations
+woosh2 = pyglet.resource.media("sounds/misc/woosh2.wav", streaming=False)
 newLineBeep = pyglet.resource.media("sounds/misc/newLineBeep1.wav", streaming=False)
 sniperShot2 = pyglet.resource.media("sounds/gunshots/sniperShot2.wav", streaming=False)
 goodNightBell = pyglet.resource.media("sounds/misc/goodNightBell.wav", streaming=False)
@@ -26,8 +27,10 @@ nightSequence3 = pyglet.resource.media("sounds/music/nightSequence3.wav", stream
 nightSequence4 = pyglet.resource.media("sounds/music/nightSequence4.wav", streaming=False)
 nightSequence5 = pyglet.resource.media("sounds/music/nightSequence5.wav", streaming=False)
 nightSequence6 = pyglet.resource.media("sounds/music/nightSequence6.wav", streaming=False)
+nightSounds1 = pyglet.resource.media("sounds/misc/nightSounds1.wav", streaming=False)
+rainSounds1 = pyglet.resource.media("sounds/misc/rainSounds1.wav", streaming=False)
 
-nightNumber = 1
+nightNumber = 0
 
 SCREEN_WIDTH = 110
 
@@ -351,9 +354,9 @@ def startup():
     sniperShot2.play()
     sleep(1)
     type_writer("We will begin by informing the participants of their occupations.", beep=True)
-    sleep(3)
+    sleep(1)
     goodNightBell.play()
-    sleep(3)
+    sleep(5)
     os.system('cls')
 
 
@@ -361,20 +364,23 @@ def startup():
 def night_sequence():
     music_list = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nightSequence5, nightSequence6]
     music_list[nightNumber].play()
+    nightSounds1.play()
     for item in playerList:
         if item.living:
             # Prompt the user to begin their turn
-            print("{0}, press any key to begin your turn please.".format(item.name))
+            woosh2.play()
+            print(Fore.LIGHTMAGENTA_EX + item.name + Fore.RESET + " press any key to begin your turn please.")
             garbage = input()
             os.system('cls')
             # Inform the user about what they are and what they do
-            night_type_writer("Good evening {0}, you are a ".format(item.name)), print(
-                (item.role.role_color()) + str(item.role.name) + "." + Back.RESET + Fore.RESET)
-            print("As a {0}, you are {1}".format(item.role.name, item.role.description))
+            night_type_writer("Good evening " + Fore.LIGHTMAGENTA_EX + item.name + Fore.RESET + ", you are a " + (
+                item.role.role_color()) + str(item.role.name) + "." + Back.RESET + Fore.RESET)
+            print("You are {0}".format(item.role.description))
             print(item.role.hint)
             if item.role.name == "Serial Killer":
                 print(" ")
-                print("Select one person to attempt to kill tonight by typing their number:")
+                print(
+                    Fore.LIGHTRED_EX + "Select one person to attempt to kill tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
@@ -388,21 +394,24 @@ def night_sequence():
                     os.system('cls')
             elif item.role.name == "Citizen":
                 print(" ")
-                print("You can't do anything at night, but enter some random number to make people think you can.")
+                print(
+                    "You can't do anything at night, but " + Fore.LIGHTRED_EX + "enter some random number to make people think you can." + Fore.RESET)
                 garbage = input()
-                print("Good job, press any key to end your turn.")
+                print("Good job," + Fore.LIGHTRED_EX + " press any key to end your turn." + Fore.RESET)
                 garbage = input()
                 os.system('cls')
             elif item.role.name == "Mayor":
                 print(" ")
-                print("You can't do anything at night, but enter some random number to make people think you can.")
+                print(
+                    "You can't do anything at night, but " + Fore.LIGHTRED_EX + "enter some random number to make people think you can." + Fore.RESET)
                 garbage = input()
-                print("Good job, press any key to end your turn.")
+                print("Good job," + Fore.LIGHTRED_EX + " press any key to end your turn." + Fore.RESET)
                 garbage = input()
                 os.system('cls')
             elif item.role.name == "Bodyguard":
                 print(" ")
-                print("Select one person to attempt to guard tonight by typing their number:")
+                print(
+                    Fore.LIGHTRED_EX + "Select one person to attempt to guard tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
@@ -416,7 +425,8 @@ def night_sequence():
                     os.system('cls')
             elif item.role.name == "Escort":
                 print(" ")
-                print("Select one person to attempt to distract tonight by typing their number:")
+                print(
+                    Fore.LIGHTRED_EX + "Select one person to attempt to distract tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
@@ -430,7 +440,8 @@ def night_sequence():
                     os.system('cls')
             elif item.role.name == "Lookout":  # Gonna need to be informed who visited their target last night at some point
                 print(" ")
-                print("Select one person to attempt to watch tonight by typing their number:")
+                print(
+                    Fore.LIGHTRED_EX + "Select one person to attempt to watch tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
@@ -444,7 +455,8 @@ def night_sequence():
                     os.system('cls')
             elif item.role.name == "Sheriff":
                 print(" ")
-                print("Select one person to attempt to search tonight by typing their number:")
+                print(
+                    Fore.LIGHTRED_EX + "Select one person to attempt to search tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
@@ -458,7 +470,8 @@ def night_sequence():
                     os.system('cls')
             elif item.role.name == "Vigilante":
                 print(" ")
-                print("Select one person to attempt to shoot tonight by typing their number:")
+                print(
+                    Fore.LIGHTRED_EX + "Select one person to attempt to shoot tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
@@ -472,6 +485,14 @@ def night_sequence():
                     os.system('cls')
             input()
             os.system('cls')
+
+    print("The Bodyguard went to protect {0}".format())
+    print("The Doctor went to heal {0}".format())
+    print("The Escort went to distract {0}".format())
+    print("The Lookout went to watch {0}".format())
+    print("The Sheriff went to investigate {0}".format())
+    print("The Vigilante went to shoot {0}".format())
+    print("The Serial Killer went to murder {0}".format())
 
 
 # Output a list of all players to the user
