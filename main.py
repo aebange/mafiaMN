@@ -388,8 +388,8 @@ def night_sequence():
                 if serial_killer_target == "S":
                     print("You will stay inside with your pet cat 'Clumpy' tonight.")
                 else:
-                    print("You went to kill {0} tonight, press any key to end your turn.".format(
-                        playerList[serial_killer_target].name))
+                    print("You went to kill {0} tonight, ".format(playerList[
+                                                                      serial_killer_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
                     garbage = input()
                     os.system('cls')
             elif item.role.name == "Citizen":
@@ -419,8 +419,8 @@ def night_sequence():
                 if bodyguard_target == "S":
                     print("You will stay inside with your pet cat 'Shadow' tonight.")
                 else:
-                    print("You went to guard {0} tonight, press any key to end your turn.".format(
-                        playerList[bodyguard_target].name))
+                    print("You went to guard {0} tonight, ".format(playerList[
+                                                                       bodyguard_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
                     garbage = input()
                     os.system('cls')
             elif item.role.name == "Escort":
@@ -434,8 +434,8 @@ def night_sequence():
                 if escort_target == "S":
                     print("You will stay inside with your pet cat 'Bubble' tonight.")
                 else:
-                    print("You went to distract {0} tonight, press any key to end your turn.".format(
-                        playerList[escort_target].name))
+                    print("You went to distract {0} tonight, ".format(playerList[
+                                                                          escort_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
                     garbage = input()
                     os.system('cls')
             elif item.role.name == "Lookout":  # Gonna need to be informed who visited their target last night at some point
@@ -449,8 +449,8 @@ def night_sequence():
                 if lookout_target == "S":
                     print("You will stay inside with your pet cat 'Lana' tonight.")
                 else:
-                    print("You went to watch {0} tonight, press any key to end your turn.".format(
-                        playerList[lookout_target].name))
+                    print("You went to watch {0} tonight, ".format(playerList[
+                                                                       lookout_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
                     garbage = input()
                     os.system('cls')
             elif item.role.name == "Sheriff":
@@ -464,8 +464,8 @@ def night_sequence():
                 if sheriff_target == "S":
                     print("You will stay inside with your pet cat 'Luna' tonight.")
                 else:
-                    print("You went to investigate {0} tonight, press any key to end your turn.".format(
-                        playerList[sheriff_target].name))
+                    print("You went to investigate {0} tonight, ".format(playerList[
+                                                                             sheriff_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
                     garbage = input()
                     os.system('cls')
             elif item.role.name == "Vigilante":
@@ -479,9 +479,8 @@ def night_sequence():
                 if vigilante_target == "S":
                     print("You will stay inside with your pet cat 'Max' tonight.")
                 else:
-                    print("You went to assassinate {0} tonight, press any key to end your turn.".format(
-                        playerList[vigilante_target].name))
-                    garbage = input()
+                    print("You went to shoot {0} tonight, ".format(playerList[
+                                                                       vigilante_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
                     os.system('cls')
             input()
             os.system('cls')
@@ -544,17 +543,18 @@ def get_user_input():
             if local_target == "S":
                 return local_target
             else:
-                print("That wasn't the kind of number we were looking for, choose another please.")
+                print(
+                    "That wasn't the kind of number we were looking for," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
                 sleep(2)
         else:
             if int(local_target) < len(playerList) and int(local_target) >= 0:
                 local_target = int(local_target)
                 if not playerList[local_target].living:
-                    print("That person is dead, choose another please.")
+                    print("That person is dead," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
                 else:
                     return local_target
             else:
-                print("That person doesn't exist, choose another please.")
+                print("That person doesn't exist," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
 
 ########################################################################################################################
 # CODE EXECUTION
