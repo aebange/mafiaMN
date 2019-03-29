@@ -13,5 +13,9 @@ TOWN ABILITIES
         Sheriff
     Day Reveal - Announce that you are the mayor during the day, gaining additional votes thereafter (number of votes is equal to 1/4th the number of players left).
         Mayor
-    Murder - Attempt to murder one person each night.
+    Murder - Attempt to kill one person each night.
         Vigilante
+
+NEUTRAL ABILITIES
+    Murder  - Attempt to kill one person each night.
+        Serial Killer

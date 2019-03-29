@@ -5,3 +5,5 @@ TOWN TRAITS
         Lookout
     Attack Alert - Allows the user to know when their target has been attacked
         Doctor
+
+NEUTRAL TRAITS

@@ -41,29 +41,52 @@ SCREEN_WIDTH = 110
 
 # Create the class structure for players
 class Player:
-    def __init__(self, name, number, role, living, status, last_will):
+    def __init__(self, name, number, role, living, status, last_will, target, info):
+        # (String) Used for storing this person's name
         self.name = name
+        # (Integer) Used for storing when this person should be prompted for information (in progressive order)
         self.number = number
+        # (Class Object) Used for storing this person's assigned role
         self.role = role
+        # (Boolean) Used for storing whether or not this person is dead or alive
         self.living = living
+        # (Dictionary) Used for storing any added effects made to this person each night
         self.status = status
+        # (String) Used for storing the last wishes of a user (displayed on death)
         self.last_will = last_will
-
+        # (Class Object) Used for storing who the user targeted each night
+        self.target = target
+        # (List of Strings) Used for storing feedback regarding the nights activities (Whether or not they failed, someone healed them, etc)
+        self.info
 
 # Create the class structure for roles
 class Role:
-    def __init__(self, name, alignment, type, night_abilities, uses, immunities, traits, description, hint):
+    def __init__(self, name, alignment, type, night_abilities, uses, immunities, traits, description, hint, priority):
+        # (String) Used for storing the name of this role
         self.name = name
+        # (String) Used for storing the affiliation of this role
         self.alignment = alignment
+        # (List of Strings) Used for storing the classification of this role (Investigative, Killing, Protective, etc)
         self.type = type
+        # (List of Strings) Used for storing what this role can do at night
         self.night_abilities = night_abilities
+        # (Integer) Used for storing how many nights this role can use their night_abilities
         self.uses = uses
+        # (List of Strings) Used for storing any immunities to night_abilities this role may have
         self.immunities = immunities
+        # (List of Strings) Used for storing any weird exceptions made for this role
         self.traits = traits
+        # (String) Used for displaying to the user a description of who they are as this role
         self.description = description
+        # (String) Used for displaying to the user hints regarding how to play as this role
         self.hint = hint
+        # (Integer) Used for identifying when this role's night actions should be processed by the engine
+        self.priority = priority
+        # (String) Used for displaying to the user how they win the game
         self.objective = "Awaiting instantiation in def summary line 59..."
+        # (Colorama Object) Used for identifying how this role's name should be printed to the screen
         self.color = Fore.WHITE
+        # (Colorama Object) Used for identifying how this role's name should be printed to the screen
         self.back = Back.BLACK
 
     # Assign objectives to the players once they have their roles
@@ -81,7 +104,8 @@ class Role:
         else:
             print("ERROR: INVALID self.alignment OF '%s' HAS ATTEMPTED TO PASS THROUGH def summary(self)!" % str(
                 self.alignment))
-        return "You are {} aligned with the {}.To win, you must {}".format(self.description, self.alignment, self.objective)
+        return "You are {} aligned with the {}.To win, you must {}".format(self.description, self.alignment,
+                                                                           self.objective)
 
     # Assign colors to the roles for outputting via type_writer function
     def role_color(self):
@@ -111,95 +135,102 @@ objectiveList = ["lynch all criminals and evildoers to restore justice to the to
                  "be the last person left alive.",  # Serial Killer Alignment
                  "survive until a victor has emerged."]  # Any Alignment
 
-
 # Define Town Roles
 citizen = Role(
     "Citizen",  # Name (What the role is called)
     "Town",  # Affiliation (How the role wins)
     ["Town Government"],  # Type (What the role does)
     ["Bulletproof Vest"],  # Abilities (What the role can do at night)
-    "1",  # Uses (How many times the ability can be used)
+    1,  # Uses (How many times the ability can be used)
     ["None"],  # Immunities (What the role cant be killed or detected by at night)
     ["None"],  # Traits (Special details about the role)
     "a regular person who believes in truth and justice.",  # Summary (A lore-based description of the role)
-    "The Citizen has a Bulletproof Vest that can be used to save them from death only ONCE each night. If you are attacked by multiple people however, you will die. Be conservative as your vest may have limited uses!")
+    "The Citizen has a Bulletproof Vest that can be used to save them from death only ONCE each night. If you are attacked by multiple people however, you will die. Be conservative as your vest may have limited uses!",
+    3)  # Role Priority
 
 bodyguard = Role(
     "Bodyguard",
     "Town",
     ["Town Protective"],
     ["Guard"],
-    "INF",
+    0,
     ["None"],
     ["Heal Immune"],
     "a war veteran who secretly makes a living by selling protection.",
-    "The bodyguard can guard one person each night. If that person is attacked while you are protecting them, both you and the attacker will die. The person you are protecting however will be spared - EVEN if they aren't town.")
+    "The bodyguard can guard one person each night. If that person is attacked while you are protecting them, both you and the attacker will die. The person you are protecting however will be spared - EVEN if they aren't town.",
+    1)  # Role Priority
 
 lookout = Role(
     "Lookout",
     "Town",
     ["Town Investigative"],
     ["Watch"],
-    "INF",
+    0,
     ["None"],
     ["Self-Target", "Ignore Detection Immunity"],
     "a war veteran who secretly makes a living by selling protection.",
-    "The lookout can stake out at one person's house each night to see who visits them. Remember, not only evil players may be visiting other's houses.")
+    "The lookout can stake out at one person's house each night to see who visits them. Remember, not only evil players may be visiting other's houses.",
+    3)  # Role Priority
 
 escort = Role(
     "Escort",
     "Town",
     ["Town Protective"],
     ["Role-block"],
-    "INF",
+    0,
     ["None"],
     ["None"],
-    "a scantily-clad escort, working in secret.",
-    "The escort can visit one person's house each night, giving them such a good time that they are role-blocked for that night and cannot complete any actions.")
+    "a scantily-clad street worker, working in secret.",
+    "The escort can visit one person's house each night, giving them such a good time that they are role-blocked for that night and cannot complete any actions.",
+    1)  # Role Priority
 
 doctor = Role(
     "Doctor",
     "Town",
     ["Town Protective"],
     ["Heal"],
-    "INF",
+    0,
     ["None"],
     ["Attack Alert"],
     "a secret surgeon skilled in trauma care.",
-    "The doctor can guard one person each night. If that person is attacked while you are protecting them, you will heal them fully. You can only heal them once though, and multiple attackers will succeed in their mission.")
+    "The doctor can guard one person each night. If that person is attacked while you are protecting them, you will heal them fully. You can only heal them once though, and multiple attackers will succeed in their mission.",
+    2)  # Role Priority
 
 sheriff = Role(
     "Sheriff",
     "Town",
     ["Town Investigative"],
     ["Check Affiliation"],
-    "INF",
+    0,
     ["None"],
     ["None"],
     "a member of law enforcement, forced into hiding because of the threat of murder.",
-    "The sheriff can investigate one person's house each night, identifying who they are affiliated with. Beware however, for you will be a prime target for murder once you reveal your findings to your colleagues.")
+    "The sheriff can investigate one person's house each night, identifying who they are affiliated with. Beware however, for you will be a prime target for murder once you reveal your findings to your colleagues.",
+    3)  # Role Priority
 
 mayor = Role(
     "Mayor",
     "Town",
     ["Town Government", "Town Investigative"],
     ["Day Reveal"],
-    "1",
+    1,
     ["Heal Immune"],
     ["None"],
     "the governor of the town, hiding in anonymity to avoid assassination.",
-    "The mayor has no night abilities, but can reveal himself during the day. Revealing increases the value of your vote significantly and confirms to the other players that you are indeed the mayor. Use this power to lead the town, but use it carefully, you will be a big target for the evil players.")
+    "The mayor has no night abilities, but can reveal himself during the day. Revealing increases the value of your vote significantly and confirms to the other players that you are indeed the mayor. Use this power to lead the town, but use it carefully, you will be a big target for the evil players.",
+    3)  # Role Priority
 
 vigilante = Role(
     "Vigilante",
     "Town",
     ["Town Killing"],
     ["Murder"],
-    "2",
+    2,
     ["Heal Immune"],
     ["None"],
     "a dirty ex-cop who will ignore the law to enact justice.",
-    "The vigilante can choose to murder one person each night. This will not kill anyone who has night immunity - like the Serial Killer, but can work on weaker roles. This ability can kill town members too. Be conservative with your gun, you only have so many bullets.")
+    "The vigilante can choose to murder one person each night. This will not kill anyone who has night immunity - like the Serial Killer, but can work on weaker roles. This ability can kill town members too. Be conservative with your gun, you only have so many bullets.",
+    1)  # Role Priority
 
 # Define Neutral Roles
 serial_killer = Role(
@@ -207,12 +238,12 @@ serial_killer = Role(
     "Serial Killer",
     ["Neutral Killing"],
     ["Murder"],
-    "INF",
-    ["Detect Immune","Night Immune"],
+    0,
+    ["Detect Immune", "Night Immune"],
     ["None"],
     "a deranged criminal who hates the world.",
-    "The serial killer can choose to murder one person each night. You are night-immune and can only die by suicide or hanging during the day. Try to target roles who will lead the town to discovering you first.")
-
+    "The serial killer can choose to murder one person each night. You are night-immune and can only die by suicide or hanging during the day. Try to target roles who will lead the town to discovering you first.",
+    1)  # Role Priority
 
 # Included roles
 townRolesList = [citizen, bodyguard, lookout, escort, doctor, sheriff, mayor, vigilante]
@@ -305,6 +336,7 @@ def night_type_writer(string, beep=False, color="W", delay=.008):
             sys.stdout.flush()
             sleep(delay)
 
+
 ########################################################################################################################
 # GAME MECHANIC FUNCTIONS
 ########################################################################################################################
@@ -314,16 +346,16 @@ def night_type_writer(string, beep=False, color="W", delay=.008):
 def user_identification():
     i = 0
     player_list = []
-    player_list.append(Player("Alex", 0, "NULL", True, "Well", " "))
-    player_list.append(Player("Maddie", 1, "NULL", True, "Well", " "))
-    player_list.append(Player("Tyler", 2, "NULL", False, "Well", " "))
-    player_list.append(Player("Will", 3, "NULL", True, "Well", " "))
-    player_list.append(Player("Jason", 4, "NULL", True, "Well", " "))
-    player_list.append(Player("Andrew", 5, "NULL", True, "Well", " "))
-    player_list.append(Player("Gillian", 6, "NULL", True, "Well", " "))
-    player_list.append(Player("Nick", 7, "NULL", True, "Well", " "))
+    player_list.append(Player("Alex", 0, None, True, {}, "NULL", "NULL", []))
+    player_list.append(Player("Maddie", 1, None, True, {}, "NULL", "NULL", []))
+    player_list.append(Player("Tyler", 2, None, False, {}, "NULL", "NULL", []))
+    player_list.append(Player("Will", 3, None, True, {}, "NULL", "NULL", []))
+    player_list.append(Player("Jason", 4, None, True, {}, "NULL", "NULL", []))
+    player_list.append(Player("Andrew", 5, None, True, {}, "NULL", "NULL", []))
+    player_list.append(Player("Gillian", 6, None, True, {}, "NULL", "NULL", []))
+    player_list.append(Player("Nick", 7, None, True, {}, "NULL", "NULL", []))
     # while True:
-    #     current_player = Player("AWAITING_INSTANTIATION", i, "NULL", True, "Well", " ")
+    #     current_player = Player("AWAITING_INSTANTIATION", i, None, True, {}, "NULL", "NULL", [])
     #     print("Would you like to add a new player?")
     #     input_choice = input()
     #     if input_choice.lower() == "yes":
@@ -379,119 +411,115 @@ def night_sequence():
             print(item.role.hint)
             if item.role.name == "Serial Killer":
                 print(" ")
-                print(
-                    Fore.LIGHTRED_EX + "Select one person to attempt to kill tonight by typing their number:" + Fore.RESET)
+                print(Fore.LIGHTRED_EX + "Select one person to attempt to kill tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 serial_killer_target = get_user_input()
                 if serial_killer_target == "S":
                     print("You will stay inside with your pet cat 'Clumpy' tonight.")
+                    item.target = None
                 else:
-                    print("You went to kill {0} tonight, ".format(playerList[
-                                                                      serial_killer_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    print("You went to kill {0} tonight, ".format(playerList[serial_killer_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    item.target = serial_killer_target
                     garbage = input()
                     os.system('cls')
             elif item.role.name == "Citizen":
                 print(" ")
-                print(
-                    "You can't do anything at night, but " + Fore.LIGHTRED_EX + "enter some random number to make people think you can." + Fore.RESET)
+                print("You can't do anything at night, but " + Fore.LIGHTRED_EX + "enter some random number to make people think you can." + Fore.RESET)
                 garbage = input()
                 print("Good job," + Fore.LIGHTRED_EX + " press any key to end your turn." + Fore.RESET)
+                item.target = None
                 garbage = input()
                 os.system('cls')
             elif item.role.name == "Mayor":
                 print(" ")
-                print(
-                    "You can't do anything at night, but " + Fore.LIGHTRED_EX + "enter some random number to make people think you can." + Fore.RESET)
+                print("You can't do anything at night, but " + Fore.LIGHTRED_EX + "enter some random number to make people think you can." + Fore.RESET)
                 garbage = input()
                 print("Good job," + Fore.LIGHTRED_EX + " press any key to end your turn." + Fore.RESET)
+                item.target = None
                 garbage = input()
                 os.system('cls')
             elif item.role.name == "Bodyguard":
                 print(" ")
-                print(
-                    Fore.LIGHTRED_EX + "Select one person to attempt to guard tonight by typing their number:" + Fore.RESET)
+                print(Fore.LIGHTRED_EX + "Select one person to attempt to guard tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 bodyguard_target = get_user_input()
                 if bodyguard_target == "S":
                     print("You will stay inside with your pet cat 'Shadow' tonight.")
+                    item.target = None
                 else:
-                    print("You went to guard {0} tonight, ".format(playerList[
-                                                                       bodyguard_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    print("You went to guard {0} tonight, ".format(playerList[bodyguard_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    item.target = bodyguard_target
                     garbage = input()
                     os.system('cls')
             elif item.role.name == "Escort":
                 print(" ")
-                print(
-                    Fore.LIGHTRED_EX + "Select one person to attempt to distract tonight by typing their number:" + Fore.RESET)
+                print(Fore.LIGHTRED_EX + "Select one person to attempt to distract tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 escort_target = get_user_input()
                 if escort_target == "S":
                     print("You will stay inside with your pet cat 'Bubble' tonight.")
+                    item.target = None
                 else:
-                    print("You went to distract {0} tonight, ".format(playerList[
-                                                                          escort_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    print("You went to distract {0} tonight, ".format(playerList[escort_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    item.target = None
                     garbage = input()
                     os.system('cls')
             elif item.role.name == "Lookout":  # Gonna need to be informed who visited their target last night at some point
                 print(" ")
-                print(
-                    Fore.LIGHTRED_EX + "Select one person to attempt to watch tonight by typing their number:" + Fore.RESET)
+                print(Fore.LIGHTRED_EX + "Select one person to attempt to watch tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 lookout_target = get_user_input()
                 if lookout_target == "S":
                     print("You will stay inside with your pet cat 'Lana' tonight.")
+                    item.target = None
                 else:
-                    print("You went to watch {0} tonight, ".format(playerList[
-                                                                       lookout_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    print("You went to watch {0} tonight, ".format(playerList[lookout_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    item.Target = lookout_target
                     garbage = input()
                     os.system('cls')
             elif item.role.name == "Sheriff":
                 print(" ")
-                print(
-                    Fore.LIGHTRED_EX + "Select one person to attempt to search tonight by typing their number:" + Fore.RESET)
+                print(Fore.LIGHTRED_EX + "Select one person to attempt to search tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 sheriff_target = get_user_input()
                 if sheriff_target == "S":
                     print("You will stay inside with your pet cat 'Luna' tonight.")
+                    item.target = None
                 else:
-                    print("You went to investigate {0} tonight, ".format(playerList[
-                                                                             sheriff_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    print("You went to investigate {0} tonight, ".format(playerList[sheriff_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    item.target = sheriff_target
                     garbage = input()
                     os.system('cls')
             elif item.role.name == "Vigilante":
                 print(" ")
-                print(
-                    Fore.LIGHTRED_EX + "Select one person to attempt to shoot tonight by typing their number:" + Fore.RESET)
+                print(Fore.LIGHTRED_EX + "Select one person to attempt to shoot tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 vigilante_target = get_user_input()
                 if vigilante_target == "S":
                     print("You will stay inside with your pet cat 'Max' tonight.")
+                    item.target = None
                 else:
-                    print("You went to shoot {0} tonight, ".format(playerList[
-                                                                       vigilante_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    print("You went to shoot {0} tonight, ".format(playerList[vigilante_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    item.target = vigilante_target
                     os.system('cls')
-            input()
-            os.system('cls')
+            print("The cards are in place, the night sequence has begun.")
+            # Conduct actual night activities
+            for player in priority0Roles:
+                commit_role_action(player)
 
-    print("The Bodyguard went to protect {0}".format())
-    print("The Doctor went to heal {0}".format())
-    print("The Escort went to distract {0}".format())
-    print("The Lookout went to watch {0}".format())
-    print("The Sheriff went to investigate {0}".format())
-    print("The Vigilante went to shoot {0}".format())
-    print("The Serial Killer went to murder {0}".format())
+
 
 
 # Output a list of all players to the user
@@ -518,7 +546,7 @@ neutralKillingRoles = []
 
 
 # Build a list of all objects based on attributes
-def generate_object_list():
+def generate_type_list():
     for obj in gc.get_objects():
         if isinstance(obj, Role):
             for item in obj.type:
@@ -533,7 +561,31 @@ def generate_object_list():
                 elif item == "Neutral Killing":
                     neutralKillingRoles.append(obj)
                 else:
-                    print("ERROR: INVALID self.type (Role) PRESENTED TO generate_object_list FUNCTION!")
+                    print("ERROR: INVALID self.type (Role) PRESENTED TO generate_type_list FUNCTION!")
+
+
+# Instantiate global lists to store what roles apply to which type
+priority0Roles = []
+priority1Roles = []
+priority2Roles = []
+priority3Roles = []
+
+
+# Build a list of all objects based on attributes
+def generate_priority_list():
+    for obj in gc.get_objects():
+        if isinstance(obj, Role):
+            for item in obj.priority:
+                if item == 0:
+                    priority0Roles.append(obj)
+                elif item == 1:
+                    priority1Roles.append(obj)
+                elif item == 2:
+                    priority2Roles.append(obj)
+                elif item == 3:
+                    priority3Roles.append(obj)
+                else:
+                    print("ERROR: INVALID self.type (Role) PRESENTED TO generate_priority_list FUNCTION!")
 
 
 def get_user_input():
@@ -543,8 +595,7 @@ def get_user_input():
             if local_target == "S":
                 return local_target
             else:
-                print(
-                    "That wasn't the kind of number we were looking for," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
+                print("That wasn't the kind of number we were looking for," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
                 sleep(2)
         else:
             if int(local_target) < len(playerList) and int(local_target) >= 0:
@@ -556,11 +607,66 @@ def get_user_input():
             else:
                 print("That person doesn't exist," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
 
+# Delegate player actions unto their targets
+# This might not be necessary lol
+def commit_role_action(player):
+    pass
+
+########################################################################################################################
+# ROLE ABILITIES
+########################################################################################################################
+
+
+# Attempt to kill one person each night.
+def murder_ability(player):
+    # IMMUNITY DEPENDENCIES: "Night Immunity"
+    # STATUS DEPENDENCIES: "Guarded", "Healed"
+    for trait in player.target.role.traits:
+        if trait == "Night Immune":
+            # This person could not be killed this way
+            return
+        else:
+            # This person was guarded and now both you and one of the guards are dead
+            if "Guarded" in player.target.status.keys():
+                dead_man = player.target.status["Guarded"]
+                # Select one of the multiple possible bodyguards that will give their lives to save the target
+                x = len(dead_man)
+                y = random.randrange(0,(x-1))
+                y.alive = False
+                player.alive = False
+                y.info = "\033[41mYour target was attacked last night! You and the assailant were both slain in the shootout!\033[49m"
+                player.info = "\033[41mYour target was protected by a bodyguard! You and the bodyguard were both slain in the shootout!\033[49m"
+            else:
+                # This person is now dead and will remain that way unless healed
+                player.target.alive = False
+    # The action was completed without issue
+    return None
+
+
+# Protect one person each night from 1 attack, if the target is attacked then both you and the killer will die.
+def guard_ability(player):
+    # DEPENDENCIES: None
+    # This person is under guard and cannot be harmed (initially)
+    if "Guarded" in player.target.status.keys():
+        # This target is already under guard by someone else, add us to the list
+        player.target.status["Guarded"].append(player)
+    else:
+        # Nobody else is guarding this target yet
+        temp_dict = {"Guarded": [player]}
+        player.target.status.update(temp_dict)
+        # The action was completed without issue
+        return None
+
+
+
+
+
+
 ########################################################################################################################
 # CODE EXECUTION
 ########################################################################################################################
 
-generate_object_list()
+generate_type_list()
 clickList = generate_click_list()
 playerList = user_identification()
 user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRolesList))
