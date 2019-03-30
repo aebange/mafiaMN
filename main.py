@@ -12,7 +12,7 @@ from colorama import init, Fore, Back
 # pip install colorama
 
 
-# Used to instantiate colorama
+# Used to initialize colorama
 init(convert=True)
 # Used to fetch current working directory of filesystem
 cwd = os.getcwd()
@@ -41,7 +41,7 @@ SCREEN_WIDTH = 110
 
 # Create the class structure for players
 class Player:
-    def __init__(self, name, number, role, living, status, last_will, target, info):
+    def __init__(self, name, number, role, living, status, last_will, target, info, visitors):
         # (String) Used for storing this person's name
         self.name = name
         # (Integer) Used for storing when this person should be prompted for information (in progressive order)
@@ -57,7 +57,9 @@ class Player:
         # (Class Object) Used for storing who the user targeted each night
         self.target = target
         # (List of Strings) Used for storing feedback regarding the nights activities (Whether or not they failed, someone healed them, etc)
-        self.info
+        self.info = info
+        # (List of Objects) Used for keeping track of who visited this person during the night
+        self.visitors = visitors
 
 # Create the class structure for roles
 class Role:
@@ -141,7 +143,7 @@ citizen = Role(
     "Town",  # Affiliation (How the role wins)
     ["Town Government"],  # Type (What the role does)
     ["Bulletproof Vest"],  # Abilities (What the role can do at night)
-    1,  # Uses (How many times the ability can be used)
+    3,  # Uses (How many times the ability can be used)
     ["None"],  # Immunities (What the role cant be killed or detected by at night)
     ["None"],  # Traits (Special details about the role)
     "a regular person who believes in truth and justice.",  # Summary (A lore-based description of the role)
@@ -153,9 +155,9 @@ bodyguard = Role(
     "Town",
     ["Town Protective"],
     ["Guard"],
-    0,
+    666,
     ["None"],
-    ["Heal Immune"],
+    ["None"],
     "a war veteran who secretly makes a living by selling protection.",
     "The bodyguard can guard one person each night. If that person is attacked while you are protecting them, both you and the attacker will die. The person you are protecting however will be spared - EVEN if they aren't town.",
     1)  # Role Priority
@@ -165,7 +167,7 @@ lookout = Role(
     "Town",
     ["Town Investigative"],
     ["Watch"],
-    0,
+    666,
     ["None"],
     ["Self-Target", "Ignore Detection Immunity"],
     "a war veteran who secretly makes a living by selling protection.",
@@ -177,7 +179,7 @@ escort = Role(
     "Town",
     ["Town Protective"],
     ["Role-block"],
-    0,
+    666,
     ["None"],
     ["None"],
     "a scantily-clad street worker, working in secret.",
@@ -189,7 +191,7 @@ doctor = Role(
     "Town",
     ["Town Protective"],
     ["Heal"],
-    0,
+    666,
     ["None"],
     ["Attack Alert"],
     "a secret surgeon skilled in trauma care.",
@@ -201,7 +203,7 @@ sheriff = Role(
     "Town",
     ["Town Investigative"],
     ["Check Affiliation"],
-    0,
+    666,
     ["None"],
     ["None"],
     "a member of law enforcement, forced into hiding because of the threat of murder.",
@@ -238,9 +240,9 @@ serial_killer = Role(
     "Serial Killer",
     ["Neutral Killing"],
     ["Murder"],
-    0,
+    666,
     ["Detect Immune", "Night Immune"],
-    ["None"],
+    ["Kills Role Blockers"],
     "a deranged criminal who hates the world.",
     "The serial killer can choose to murder one person each night. You are night-immune and can only die by suicide or hanging during the day. Try to target roles who will lead the town to discovering you first.",
     1)  # Role Priority
@@ -346,16 +348,16 @@ def night_type_writer(string, beep=False, color="W", delay=.008):
 def user_identification():
     i = 0
     player_list = []
-    player_list.append(Player("Alex", 0, None, True, {}, "NULL", "NULL", []))
-    player_list.append(Player("Maddie", 1, None, True, {}, "NULL", "NULL", []))
-    player_list.append(Player("Tyler", 2, None, False, {}, "NULL", "NULL", []))
-    player_list.append(Player("Will", 3, None, True, {}, "NULL", "NULL", []))
-    player_list.append(Player("Jason", 4, None, True, {}, "NULL", "NULL", []))
-    player_list.append(Player("Andrew", 5, None, True, {}, "NULL", "NULL", []))
-    player_list.append(Player("Gillian", 6, None, True, {}, "NULL", "NULL", []))
-    player_list.append(Player("Nick", 7, None, True, {}, "NULL", "NULL", []))
+    player_list.append(Player("Alex", 0, None, True, {}, "NULL", "NULL", [], []))
+    player_list.append(Player("Maddie", 1, None, True, {}, "NULL", "NULL", [], []))
+    player_list.append(Player("Tyler", 2, None, False, {}, "NULL", "NULL", [], []))
+    player_list.append(Player("Will", 3, None, True, {}, "NULL", "NULL", [], []))
+    player_list.append(Player("Jason", 4, None, True, {}, "NULL", "NULL", [], []))
+    player_list.append(Player("Andrew", 5, None, True, {}, "NULL", "NULL", [], []))
+    player_list.append(Player("Gillian", 6, None, True, {}, "NULL", "NULL", [], []))
+    player_list.append(Player("Nick", 7, None, True, {}, "NULL", "NULL", [], []))
     # while True:
-    #     current_player = Player("AWAITING_INSTANTIATION", i, None, True, {}, "NULL", "NULL", [])
+    #     current_player = Player("AWAITING_INSTANTIATION", i, None, True, {}, "NULL", "NULL", [], [])
     #     print("Would you like to add a new player?")
     #     input_choice = input()
     #     if input_choice.lower() == "yes":
@@ -425,6 +427,7 @@ def night_sequence():
                     garbage = input()
                     os.system('cls')
             elif item.role.name == "Citizen":
+                # #!Add functionality to this, he can use a vest. Be sure to account for uses
                 print(" ")
                 print("You can't do anything at night, but " + Fore.LIGHTRED_EX + "enter some random number to make people think you can." + Fore.RESET)
                 garbage = input()
@@ -537,7 +540,7 @@ def print_remaining_players():
 ########################################################################################################################
 
 
-# Instantiate global lists to store what roles apply to which type
+# Initialize global lists to store what roles apply to which type
 townGovernmentRoles = []
 townProtectiveRoles = []
 townInvestigativeRoles = []
@@ -564,7 +567,7 @@ def generate_type_list():
                     print("ERROR: INVALID self.type (Role) PRESENTED TO generate_type_list FUNCTION!")
 
 
-# Instantiate global lists to store what roles apply to which type
+# Initialize global lists to store what roles apply to which type
 priority0Roles = []
 priority1Roles = []
 priority2Roles = []
@@ -617,36 +620,11 @@ def commit_role_action(player):
 ########################################################################################################################
 
 
-# Attempt to kill one person each night.
-def murder_ability(player):
-    # IMMUNITY DEPENDENCIES: "Night Immunity"
-    # STATUS DEPENDENCIES: "Guarded", "Healed"
-    for trait in player.target.role.traits:
-        if trait == "Night Immune":
-            # This person could not be killed this way
-            return
-        else:
-            # This person was guarded and now both you and one of the guards are dead
-            if "Guarded" in player.target.status.keys():
-                dead_man = player.target.status["Guarded"]
-                # Select one of the multiple possible bodyguards that will give their lives to save the target
-                x = len(dead_man)
-                y = random.randrange(0,(x-1))
-                y.alive = False
-                player.alive = False
-                y.info = "\033[41mYour target was attacked last night! You and the assailant were both slain in the shootout!\033[49m"
-                player.info = "\033[41mYour target was protected by a bodyguard! You and the bodyguard were both slain in the shootout!\033[49m"
-            else:
-                # This person is now dead and will remain that way unless healed
-                player.target.alive = False
-    # The action was completed without issue
-    return None
-
-
 # Protect one person each night from 1 attack, if the target is attacked then both you and the killer will die.
 def guard_ability(player):
-    # DEPENDENCIES: None
-    # This person is under guard and cannot be harmed (initially)
+    # IMMUNITY DEPENDENCIES: None
+    # STATUS DEPENDENCIES: "Guarded"
+    # TRAIT DEPENDENCIES: None
     if "Guarded" in player.target.status.keys():
         # This target is already under guard by someone else, add us to the list
         player.target.status["Guarded"].append(player)
@@ -655,9 +633,115 @@ def guard_ability(player):
         temp_dict = {"Guarded": [player]}
         player.target.status.update(temp_dict)
         # The action was completed without issue
-        return None
 
 
+# Protect yourself from attacks each night.
+def bulletproof_vest_ability(player):
+    # IMMUNITY DEPENDENCIES: None
+    # STATUS DEPENDENCIES: None
+    # TRAIT DEPENDENCIES:
+    if player.role.uses > 0:
+        temp_dict = {"Vested": player}
+        player.status.update(temp_dict)
+        # Subtract one use from the players uses
+        player.role.uses -= 1
+        player.info.append("You can use your vest for {0} more night(s)".format(player.role.uses))
+        # The action was completed without issue
+    else:
+        # The user is out of vests and should never have reached this function
+        return
+
+
+def role_block_ability(player):
+    # IMMUNITY DEPENDENCIES: None
+    # STATUS DEPENDENCIES: "Vested"
+    # TRAIT DEPENDENCIES: "Kills Role Blockers"
+    for item in player.target.role.traits:
+        if item == "Kills Role Blockers":
+            # This role blocker is now the target of the serial killer
+            player.target.target = player
+            player.target.visitors.append(player)
+            # The role block will fail and this player will die, nothing else needs to be done
+            return
+    # Erase the targets target, effectively role-blocking them
+    player.target.target = None
+    player.target.visitors.append(player)
+    if "Vested" in player.target.status.keys():
+        del player.target.status["Vested"]
+        player.target.role.uses += 1
+        player.target.info.append("\033[45mAn attractive person visited you tonight, distracting you until the morning. You have been role-blocked!\033[49m")
+    else:
+        player.target.target = "NULL"
+        player.target.info.append("\033[45mAn attractive person visited you tonight, distracting you until the morning. You have been role-blocked!\033[49m")
+
+
+# Attempt to kill one person each night.
+def murder_ability(player):
+    # IMMUNITY DEPENDENCIES: "Night Immunity"
+    # STATUS DEPENDENCIES: "Guarded", "Vested"
+    # TRAIT DEPENDENCIES: None
+    # Check through the player's immunities
+    for immunity in player.target.role.immunities:
+        if immunity == "Night Immune":
+            # This person could not be killed this way
+            player.info.append("\033[45mYour target is night immune tonight, and cannot be killed this way!\033[49m")
+            return
+    # This person was guarded and now both you and one of the guards are dead
+    if "Guarded" in player.target.status.keys():
+        bodyguard_list = player.target.status["Guarded"]
+        # Select one of the multiple possible bodyguards that will give their lives to save the target
+        bodyguard_list_length = len(bodyguard_list)
+        selected_bodyguard_number = random.randrange(0,(bodyguard_list_length-1))
+        selected_bodyguard = bodyguard_list[selected_bodyguard_number]
+        selected_bodyguard.alive = False
+        player.alive = False
+        selected_bodyguard.info.append("\033[41mYour target was attacked last night! You and the assailant were both slain in the shootout!\033[49m")
+        player.info.append("\033[41mYour target was protected by a bodyguard! You and the bodyguard were both slain in the shootout!\033[49m")
+        bodyguard_list.remove(selected_bodyguard)
+        # Notify remaining bodyguards that their target was protected by someone else
+        for item in bodyguard_list:
+            item.info.append("\033[42mYour target was attacked last night, however someone else moved to engage the killer before you could!\033[49m")
+    elif "Vested" in player.target.status.keys():
+        # The player was wearing a bulletproof vest that protected them from harm,
+        player.target.info.append("\033[42mSomeone shot you on your porch last night, however your bulletproof vest miraculously absorbed all the damage!\033[49m")
+        return
+    else:
+        # This person is now dead and will remain that way unless healed
+        player.target.alive = False
+    # The action was completed without issue
+
+
+# Protect one person each night from 1 attack. If the target is attacked 1 time, they will be healed.
+# The victim will know they've been healed.
+def heal_ability(player):
+    # IMMUNITY DEPENDENCIES: "Heal Immune"
+    # STATUS DEPENDENCIES: None
+    # TRAIT DEPENDENCIES: None
+    for immunity in player.target.role.immunities:
+        if immunity == "Heal Immune":
+            # This person cannot be healed
+            player.info.append("\033[45mYour target is heal immune tonight, and couldn't be healed even if they were attacked.\033[49m")
+            return
+    temp_dict = {"Healed": player}
+    player.status.update(temp_dict)
+    # The action was completed without issue
+
+
+# Check the affiliation of one player each night. Does NOT bypass detect immunity
+def check_affiliation(player):
+    # IMMUNITY DEPENDENCIES: "Detect Immune"
+    # STATUS DEPENDENCIES: None
+    # TRAIT DEPENDENCIES: None
+    for immunity in player.target.role.immunities:
+        if immunity == "Detect Immune":
+            # This person cannot be detected this way
+            player.info.append("\033[42mYour target tonight is not suspicious.\033[49m")
+            return
+    if player.target.role.alignment == "Town":
+        player.info.append("\033[42mYour target tonight is not suspicious.\033[49m")
+    else:
+        # #!Change this once mafia and other neut roles are defined
+        player.info.append("\033[41mYour target tonight is not a member of the town!\033[49m")
 
 
 

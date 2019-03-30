@@ -5,5 +5,8 @@ TOWN TRAITS
         Lookout
     Attack Alert - Allows the user to know when their target has been attacked
         Doctor
+        Bodyguard
 
 NEUTRAL TRAITS
+    Kills Role Blockers - Anyone who tries to block this role will be killed instead of the killers target
+        Serial Killer
