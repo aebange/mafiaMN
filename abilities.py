@@ -1,5 +1,6 @@
 import random
 
+
 # Protect one person each night from 1 attack, if the target is attacked then both you and the killer will die.
 def guard_ability(player):
     # IMMUNITY DEPENDENCIES: None
@@ -26,6 +27,7 @@ def bulletproof_vest_ability(player):
         player.status.update(temp_dict)
         # Subtract one use from the players uses
         player.role.uses -= 1
+        # TODO: Remove uses from this section, it should be handled by the commit_action() function in main
         player.info.append("You can use your vest for {0} more night(s)".format(player.role.uses))
         # The action was completed without issue
     else:
@@ -51,6 +53,7 @@ def role_block_ability(player):
     if "Vested" in player.target.status.keys():
         del player.target.status["Vested"]
         player.target.role.uses += 1
+        # TODO: Remove uses from this section, it should be handled by the commit_action() function in main
         player.target.info.append("\033[45mAn attractive person visited you tonight, distracting you until the morning. You have been role-blocked!\033[49m")
     else:
         player.target.target = "NULL"
@@ -149,3 +152,15 @@ def watch_ability(player):
         tonights_visitors + " nobody.\033[49m"
         player.info.append(tonights_visitors)
         player.target.visitors.append(player)
+
+
+# Build a dictionary of which (string based) abilities in role class attributes correspond with with functions
+dispatch = {
+    "Guard": guard_ability,
+    "Bulletproof Vest": bulletproof_vest_ability,
+    "Role block": role_block_ability,
+    "Murder": murder_ability,
+    "Heal": heal_ability,
+    "Check Affiliation": check_affiliation_ability,
+    "Watch": watch_ability
+}

@@ -169,7 +169,6 @@ def startup():
 
 # Run through the first night
 def night_sequence():
-    # #!All users can currently target themselves!
     music_list = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nightSequence5, nightSequence6]
     music_list[nightNumber].play()
     nightSounds1.play()
@@ -201,7 +200,7 @@ def night_sequence():
                     input()
                     os.system('cls')
             elif player.role.name == "Citizen":
-                # #!Add functionality to this, he can use a vest. Be sure to account for uses
+                # TODO: Add functionality to this, he cannot use his vest yet.
                 print(" ")
                 print("You can't do anything at night, but " + Fore.LIGHTRED_EX + "enter some random number to make people think you can." + Fore.RESET)
                 input()
@@ -397,16 +396,32 @@ def get_user_input(player):
             else:
                 print("That person doesn't exist," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
 
-# Delegate player actions unto their targets
-# This might not be necessary lol
+
+# Delegate player actions unto their targets, checking and handling potential remaining uses
 def commit_role_action(player):
-    # !#Handle uses here please
-    pass
+    if player.role.uses == 0:
+        # The player is out of uses and their ability will not be activated
+        player.info.append("\033[31mYou are out of uses for that ability and couldn't do anything.\033[39m")
+        # TODO: This isn't the best way to handle this, in the future block them out during the first phase of the night
+        return
+    else:
+        if not player.role.uses == 666:
+            # Player has a limited number of uses for their ability
+            # Subtract one use from their pool of uses
+            player.role.uses -= 1
+            # Check for the function to be called for the user's role's ability and apply it
+            dispatch[player.role.night_abilities](player)
+        else:
+            # Player has an unlimited number of uses for their ability
+            # Check for the function to be called for the user's role's ability and apply it
+            dispatch[player.role.night_abilities](player)
+
 
 
 ########################################################################################################################
 # CODE EXECUTION
 ########################################################################################################################
+
 
 generate_type_list()
 clickList = generate_click_list()

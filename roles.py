@@ -5,7 +5,7 @@ citizen = Role(
     "Citizen",  # Name (What the role is called)
     "Town",  # Affiliation (How the role wins)
     ["Town Government"],  # Type (What the role does)
-    ["Bulletproof Vest"],  # Abilities (What the role can do at night)
+    "Bulletproof Vest",  # Abilities (What the role can do at night)
     3,  # Uses (How many times the ability can be used)
     ["None"],  # Immunities (What the role cant be killed or detected by at night)
     ["None"],  # Traits (Special details about the role)
@@ -17,7 +17,7 @@ bodyguard = Role(
     "Bodyguard",
     "Town",
     ["Town Protective"],
-    ["Guard"],
+    "Guard",
     666,
     ["None"],
     ["None"],
@@ -29,7 +29,7 @@ lookout = Role(
     "Lookout",
     "Town",
     ["Town Investigative"],
-    ["Watch"],
+    "Watch",
     666,
     ["None"],
     ["Self-Target", "Ignore Detection Immunity"],
@@ -41,7 +41,7 @@ escort = Role(
     "Escort",
     "Town",
     ["Town Protective"],
-    ["Role-block"],
+    "Role-block",
     666,
     ["None"],
     ["None"],
@@ -53,7 +53,7 @@ doctor = Role(
     "Doctor",
     "Town",
     ["Town Protective"],
-    ["Heal"],
+    "Heal",
     666,
     ["None"],
     ["Attack Alert"],
@@ -65,7 +65,7 @@ sheriff = Role(
     "Sheriff",
     "Town",
     ["Town Investigative"],
-    ["Check Affiliation"],
+    "Check Affiliation",
     666,
     ["None"],
     ["None"],
@@ -77,7 +77,7 @@ mayor = Role(
     "Mayor",
     "Town",
     ["Town Government", "Town Investigative"],
-    ["Day Reveal"],
+    "Day Reveal",
     1,
     ["Heal Immune"],
     ["None"],
@@ -89,7 +89,7 @@ vigilante = Role(
     "Vigilante",
     "Town",
     ["Town Killing"],
-    ["Murder"],
+    "Murder",
     2,
     ["Heal Immune"],
     ["None"],
@@ -102,7 +102,7 @@ serial_killer = Role(
     "Serial Killer",
     "Serial Killer",
     ["Neutral Killing"],
-    ["Murder"],
+    "Murder",
     666,
     ["Detect Immune", "Night Immune"],
     ["Kills Role Blockers"],

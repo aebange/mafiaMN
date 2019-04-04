@@ -38,7 +38,7 @@ class Role:
         self.alignment = alignment
         # (List of Strings) Used for storing the classification of this role (Investigative, Killing, Protective, etc)
         self.type = type
-        # (List of Strings) Used for storing what this role can do at night
+        # (String) Used for storing what this role can do at night
         self.night_abilities = night_abilities
         # (Integer) Used for storing how many nights this role can use their night_abilities
         self.uses = uses
