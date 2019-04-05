@@ -171,7 +171,7 @@ def startup():
 def night_sequence():
     music_list = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nightSequence5, nightSequence6]
     music_list[nightNumber].play()
-    nightSounds1.play()
+    #nightSounds1.play()
     for player in playerList:
         if player.living:
             # Prompt the user to begin their turn
@@ -290,19 +290,10 @@ def night_sequence():
                     print("You went to shoot {0} tonight, ".format(playerList[vigilante_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
                     player.target = vigilante_target
                     os.system('cls')
-            # Conduct actual night activities
-            # Role blockers/ Vests/ Bodyguards/ Deceptive roles
-            for player in priority0Roles:
-                commit_role_action(player)
-            # Killing Roles
-            for player in priority1Roles:
-                commit_role_action(player)
-            # Healing roles
-            for player in priority2Roles:
-                commit_role_action(player)
-            # Investigative roles
-            for player in priority3Roles:
-                commit_role_action(player)
+    # Conduct actual night activities
+    # Since sortedPlayerList contains the roles sorted based on priority, this should work.
+    for player in sortedPlayerList:
+        commit_role_action(player)
 
 
 # Output a list of all players to the user
@@ -417,17 +408,34 @@ def commit_role_action(player):
             dispatch[player.role.night_abilities](player)
 
 
-
 ########################################################################################################################
 # CODE EXECUTION
 ########################################################################################################################
 
-
+# Generate lists of objects based on type from garbage collection
 generate_type_list()
+
+# Generate the sequence of sounds used in the typing sound effect
 clickList = generate_click_list()
+
+# Prompt the users to identify themselves
 playerList = user_identification()
+
+# Distribute roles to the players
 user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRolesList))
 
+# Sort the playerList based on role priority
+sortedPlayerList = sorted(playerList, key=lambda x: x.role.priority, reverse=True)
+
+# Start the game
 startup()
+
+# Run the first night
 night_sequence()
+
+# Prevent the screen from closing
 input()
+
+
+
+

@@ -11,7 +11,7 @@ citizen = Role(
     ["None"],  # Traits (Special details about the role)
     "a regular person who believes in truth and justice.",  # Summary (A lore-based description of the role)
     "The Citizen has a Bulletproof Vest that can be used to save them from death only ONCE each night. If you are attacked by multiple people however, you will die. Be conservative as your vest may have limited uses!",
-    3)  # Role Priority
+    0)  # Role Priority
 
 bodyguard = Role(
     "Bodyguard",
@@ -23,7 +23,7 @@ bodyguard = Role(
     ["None"],
     "a war veteran who secretly makes a living by selling protection.",
     "The bodyguard can guard one person each night. If that person is attacked while you are protecting them, both you and the attacker will die. The person you are protecting however will be spared - EVEN if they aren't town.",
-    1)  # Role Priority
+    0)  # Role Priority
 
 lookout = Role(
     "Lookout",
@@ -47,7 +47,7 @@ escort = Role(
     ["None"],
     "a scantily-clad street worker, working in secret.",
     "The escort can visit one person's house each night, giving them such a good time that they are role-blocked for that night and cannot complete any actions.",
-    1)  # Role Priority
+    0)  # Role Priority
 
 doctor = Role(
     "Doctor",
