@@ -22,6 +22,7 @@ cwd = os.getcwd()
 # Used to fetch sound file locations
 
 nightNumber = 0
+deathList = []
 
 SCREEN_WIDTH = 110
 
@@ -196,7 +197,7 @@ def night_sequence():
                     player.target = None
                 else:
                     print("You went to kill {0} tonight, ".format(playerList[serial_killer_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
-                    player.target = serial_killer_target
+                    player.target = get_player_target(serial_killer_target)
                     input()
                     os.system('cls')
             elif player.role.name == "Citizen":
@@ -228,7 +229,7 @@ def night_sequence():
                     player.target = None
                 else:
                     print("You went to guard {0} tonight, ".format(playerList[bodyguard_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
-                    player.target = bodyguard_target
+                    player.target = get_player_target(bodyguard_target)
                     input()
                     os.system('cls')
             elif player.role.name == "Escort":
@@ -243,10 +244,10 @@ def night_sequence():
                     player.target = None
                 else:
                     print("You went to distract {0} tonight, ".format(playerList[escort_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
-                    player.target = None
+                    player.target = get_player_target(escort_target)
                     input()
                     os.system('cls')
-            elif player.role.name == "Lookout":  # Gonna need to be informed who visited their target last night at some point
+            elif player.role.name == "Lookout":
                 print(" ")
                 print(Fore.LIGHTRED_EX + "Select one person to attempt to watch tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
@@ -258,7 +259,7 @@ def night_sequence():
                     player.target = None
                 else:
                     print("You went to watch {0} tonight, ".format(playerList[lookout_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
-                    player.Target = lookout_target
+                    player.Target = get_player_target(lookout_target)
                     input()
                     os.system('cls')
             elif player.role.name == "Sheriff":
@@ -273,7 +274,7 @@ def night_sequence():
                     player.target = None
                 else:
                     print("You went to investigate {0} tonight, ".format(playerList[sheriff_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
-                    player.target = sheriff_target
+                    player.target = get_player_target(sheriff_target)
                     input()
                     os.system('cls')
             elif player.role.name == "Vigilante":
@@ -288,12 +289,57 @@ def night_sequence():
                     player.target = None
                 else:
                     print("You went to shoot {0} tonight, ".format(playerList[vigilante_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
-                    player.target = vigilante_target
+                    player.target = get_player_target(vigilante_target)
+                    input()
+                    os.system('cls')
+            elif player.role.name == "Doctor":
+                print(" ")
+                print(
+                    Fore.LIGHTRED_EX + "Select one person to attempt to heal tonight by typing their number:" + Fore.RESET)
+                print("-" * SCREEN_WIDTH)
+                print_remaining_players()
+                # Check to make sure the input is actually a number
+                doctor_target = get_user_input(player)
+                if doctor_target == "S":
+                    print("You will stay inside with your pet cat 'Max' tonight.")
+                    player.target = None
+                else:
+                    print("You went to heal {0} tonight, ".format(playerList[doctor_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
+                    player.target = get_player_target(doctor_target)
+                    input()
                     os.system('cls')
     # Conduct actual night activities
-    # Since sortedPlayerList contains the roles sorted based on priority, this should work.
-    for player in sortedPlayerList:
-        commit_role_action(player)
+    sorted_player_list = sorted(playerList, key=lambda x: x.role.priority, reverse=False)
+    # Since sorted_player_list contains the roles sorted based on priority, this should work.
+    for player in sorted_player_list:
+            if player.target is None or player.target == "NULL":
+                # Player decided to skip the night or cannot do anything
+                pass
+            else:
+                commit_role_action(player)
+    # Night phase one is complete and role actions have been executed, now output user night info
+    for player in playerList:
+        if player in deathList:
+            # This player has been dead for at least one night and has no turn.
+            print(player.name + " is dead and cannot do anything." + Fore.LIGHTRED_EX + "Press enter to skip them." + Fore.RESET)
+            input()
+            os.system('cls')
+            pass
+        else:
+            print(player.name + ", " + Fore.LIGHTRED_EX + "press enter to learn what happened tonight." + Fore.RESET)
+            input()
+            os.system('cls')
+            if not player.info:
+                print("Nothing exciting happened to you tonight, but at least you're alive right?")
+            else:
+                for info in player.info:
+                    print(info)
+                if not player.living:
+                    # This player is now 100% dead
+                    deathList.append(player)
+            print(Fore.LIGHTRED_EX + "Press enter to end your turn." + Fore.RESET)
+            input()
+            os.system('cls')
 
 
 # Output a list of all players to the user
@@ -307,7 +353,7 @@ def print_remaining_players():
 
 
 ########################################################################################################################
-# BACK-END UTILITY
+# UTILITY
 ########################################################################################################################
 
 
@@ -317,6 +363,13 @@ townProtectiveRoles = []
 townInvestigativeRoles = []
 townKillingRoles = []
 neutralKillingRoles = []
+
+
+# Take the target number recieved from the player and swap it for the corresponding player object
+def get_player_target(target_number):
+    for player in playerList:
+        if player.number == target_number:
+            return player
 
 
 # Build a list of all objects based on attributes
@@ -423,9 +476,6 @@ playerList = user_identification()
 
 # Distribute roles to the players
 user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRolesList))
-
-# Sort the playerList based on role priority
-sortedPlayerList = sorted(playerList, key=lambda x: x.role.priority, reverse=True)
 
 # Start the game
 startup()
