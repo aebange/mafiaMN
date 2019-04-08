@@ -1,4 +1,34 @@
 import random
+from time import sleep
+
+from file_directory import *
+
+
+# UNRELATED TO ABILITIES
+def play_kill_sound(player):
+    mafia_kill_sound = random.choice(mafiaKillSounds)
+    serial_kill_sound = random.choice(serialKillSounds)
+    arson_kill_sound = random.choice(arsonKillSounds)
+    if player.role == "Serial Killer":
+        serial_kill_sound.play()
+        sleep(5)
+        return
+    elif player.role == "Godfather":
+        mafia_kill_sound.play()
+        sleep(8)
+        return
+    elif player.role == "Vigilante":
+        mafia_kill_sound.play()
+        sleep(8)
+        return
+    elif player.role == "Arson":
+        arson_kill_sound.play()
+        sleep(12)
+        return
+    else:
+        mafia_kill_sound.play()
+        sleep(8)
+        return
 
 
 # Protect one person each night from 1 attack, if the target is attacked then both you and the killer will die.
@@ -77,11 +107,13 @@ def murder_ability(player):
         bodyguard_list = player.target.status["Guarded"]
         # Select one of the multiple possible bodyguards that will give their lives to save the target
         bodyguard_list_length = len(bodyguard_list)
-        # TODO: Test this in greater depth, functionality seems wonky? Passing above If statement regardless of fail
-        # Bandaid fix
         if bodyguard_list_length > 1:
+            # There is more than one bodyguard, pick a random one to kill
             selected_bodyguard_number = random.randrange(0,(bodyguard_list_length))
             selected_bodyguard = bodyguard_list[selected_bodyguard_number]
+            print("\033[41mYou hear the violent, harsh rapport of an old fashioned shootout.\033[49m")
+            gunFight1.play()
+            sleep(7)
             selected_bodyguard.alive = False
             player.alive = False
             selected_bodyguard.info.append("\033[41mYour target was attacked last night! You and the assailant were both slain in the shootout!\033[49m")
@@ -92,6 +124,10 @@ def murder_ability(player):
                 item.info.append("\033[42mYour target was attacked last night, however someone else moved to engage the killer before you could!\033[49m")
         else:
             selected_bodyguard = bodyguard_list[0]
+            # There is only one bodyguard
+            print("\033[41mYou hear the violent, harsh rapport of an old fashioned shootout.\033[49m")
+            gunFight1.play()
+            sleep(7)
             selected_bodyguard.alive = False
             player.alive = False
             selected_bodyguard.info.append("\033[41mYour target was attacked last night! You and the assailant were both slain in the shootout!\033[49m")
@@ -99,9 +135,17 @@ def murder_ability(player):
     elif "Vested" in player.target.status.keys():
         # The player was wearing a bulletproof vest that protected them from harm,
         player.target.info.append("\033[42mSomeone shot you on your porch last night, however your bulletproof vest miraculously absorbed all the damage!\033[49m")
+        print("\033[41mYou hear sounds of combat in this quiet town.\033[49m")
+        play_kill_sound(player)
         return
     else:
         # This person is now dead and will remain that way unless healed
+        if player.role == "Serial Killer":
+            print("\033[41mYou hear the sickening combination of rapid knife cuts and gunfire.\033[49m")
+            play_kill_sound(player)
+        else:
+            print("\033[41mYou hear sounds of combat in this quiet town.\033[49m")
+            play_kill_sound(player)
         player.target.alive = False
         player.target.info.append("\033[41mYou have been killed in the night. Your cold body will be found in the morning.\033[49m")
         if player.role.alignment == "Town" or player.role.alignment == "Mafia":

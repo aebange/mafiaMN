@@ -1,7 +1,6 @@
 import gc
 import os
 import sys
-from time import sleep
 
 from colorama import init, Fore, Back
 
@@ -311,6 +310,11 @@ def night_sequence():
     # Conduct actual night activities
     sorted_player_list = sorted(playerList, key=lambda x: x.role.priority, reverse=False)
     # Since sorted_player_list contains the roles sorted based on priority, this should work.
+    os.system('cls')
+    dayTime.play()
+    print("Tonights event's will now transpire...")
+    sleep(5)
+    os.system('cls')
     for player in sorted_player_list:
             if player.target is None or player.target == "NULL":
                 # Player decided to skip the night or cannot do anything
@@ -318,6 +322,12 @@ def night_sequence():
             else:
                 commit_role_action(player)
     # Night phase one is complete and role actions have been executed, now output user night info
+    os.system('cls')
+    print("Tonight's events have concluded, please close your eyes so you may learn what transpired last night.")
+    sleep(5)
+    goodNightBell.play()
+    sleep(2)
+    os.system('cls')
     for player in playerList:
         if player in deathList:
             # This player has been dead for at least one night and has no turn.
