@@ -170,8 +170,11 @@ def startup():
 # Run through the first night
 def night_sequence():
     music_list = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nightSequence5, nightSequence6]
-    music_list[nightNumber].play()
-    #nightSounds1.play()
+    #sounds_list = [nightSounds1,nightSounds2]
+    nightPlayer.queue(music_list[nightNumber])
+    nightPlayer.play()
+    #nightAmbientPlayer.queue(random.choice(sounds_list))
+    #nightAmbientPlayer.play()
     for player in playerList:
         if player.living:
             # Prompt the user to begin their turn
@@ -258,7 +261,7 @@ def night_sequence():
                     player.target = None
                 else:
                     print("You went to watch {0} tonight, ".format(playerList[lookout_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
-                    player.Target = get_player_target(lookout_target)
+                    player.target = get_player_target(lookout_target)
                     input()
                     os.system('cls')
             elif player.role.name == "Sheriff":
@@ -312,7 +315,8 @@ def night_sequence():
     # Since sorted_player_list contains the roles sorted based on priority, this should work.
     os.system('cls')
     dayTime.play()
-    print("Tonights event's will now transpire...")
+    print("Tonight's events will now transpire...")
+    fade_out(nightPlayer)
     sleep(5)
     os.system('cls')
     for player in sorted_player_list:
@@ -373,6 +377,21 @@ townProtectiveRoles = []
 townInvestigativeRoles = []
 townKillingRoles = []
 neutralKillingRoles = []
+
+
+# Gradually decreases the volume level of a selected track
+def fade_out(player):
+    while player.volume > 0:
+        player.volume -= .005
+        sleep(.02)
+    player.pause()
+
+# Gradually increases the volume level of a selected track
+def fade_in(player):
+    player.play()
+    while player.volume < 1:
+        player.volume += .005
+        sleep(.02)
 
 
 # Take the target number recieved from the player and swap it for the corresponding player object
@@ -459,16 +478,21 @@ def commit_role_action(player):
         # TODO: This isn't the best way to handle this, in the future block them out during the first phase of the night
         return
     else:
-        if not player.role.uses == 666:
-            # Player has a limited number of uses for their ability
-            # Subtract one use from their pool of uses
-            player.role.uses -= 1
-            # Check for the function to be called for the user's role's ability and apply it
-            dispatch[player.role.night_abilities](player)
+        if player.role.night_abilities == "None":
+            # Player has no night abilities
+            pass
         else:
-            # Player has an unlimited number of uses for their ability
-            # Check for the function to be called for the user's role's ability and apply it
-            dispatch[player.role.night_abilities](player)
+            if not player.role.uses == 666:
+                # Player has a limited number of uses for their ability
+                # Subtract one use from their pool of uses
+                player.role.uses -= 1
+                # Check for the function to be called for the user's role's ability and apply it
+                print("Infinite uses " + player.role.name)
+                dispatch[player.role.night_abilities](player)
+            else:
+                # Player has an unlimited number of uses for their ability
+                # Check for the function to be called for the user's role's ability and apply it
+                dispatch[player.role.night_abilities](player)
 
 
 ########################################################################################################################
@@ -490,12 +514,12 @@ user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRole
 # Start the game
 startup()
 
+# Create players for the music and ambient sounds
+nightPlayer = pyglet.media.Player()
+nightAmbientPlayer = pyglet.media.Player
+
 # Run the first night
 night_sequence()
 
 # Prevent the screen from closing
 input()
-
-
-
-

@@ -5,7 +5,7 @@ citizen = Role(
     "Citizen",  # Name (What the role is called)
     "Town",  # Affiliation (How the role wins)
     ["Town Government"],  # Type (What the role does)
-    "Bulletproof Vest",  # Abilities (What the role can do at night)
+    "None",  # Abilities (What the role can do at night) TODO: Change this back to bulletproof vest
     3,  # Uses (How many times the ability can be used)
     ["None"],  # Immunities (What the role cant be killed or detected by at night)
     ["None"],  # Traits (Special details about the role)
@@ -77,7 +77,7 @@ mayor = Role(
     "Mayor",
     "Town",
     ["Town Government", "Town Investigative"],
-    "Day Reveal",
+    "None", # TODO: Add functionality to day reveal
     1,
     ["Heal Immune"],
     ["None"],
