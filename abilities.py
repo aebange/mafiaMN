@@ -199,7 +199,6 @@ def watch_ability(player):
     # IMMUNITY DEPENDENCIES: None
     # STATUS DEPENDENCIES: None
     # TRAIT DEPENDENCIES: None
-    print("LOOKOUT ABILITY ACTIVE")
     tonights_visitors = "\033[45mYour target tonight was visited by "
     number_of_visitors = len(player.target.visitors)
     if number_of_visitors > 0:
@@ -207,19 +206,16 @@ def watch_ability(player):
             if number_of_visitors > 1:
                 tonights_visitors  = (tonights_visitors +  visitor.name + ", ")
                 number_of_visitors -= 1
-                print("CONCATENATED")
             else:
                 tonights_visitors = (tonights_visitors + ("and " + visitor.name + ".\033[49m"))
                 number_of_visitors = 0
                 player.info.append(tonights_visitors)
-                print("NO MORE TO CONCATENATE")
                 print(tonights_visitors)
         player.target.visitors.append(player)
     else:
         tonights_visitors = (tonights_visitors + " nobody.\033[49m")
         player.info.append(tonights_visitors)
         player.target.visitors.append(player)
-        print("NO VISITORS")
 
 
 # Build a dictionary of which (string based) abilities in role class attributes correspond with with functions
