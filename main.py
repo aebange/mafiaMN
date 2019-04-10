@@ -170,11 +170,11 @@ def startup():
 # Run through the first night
 def night_sequence():
     music_list = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nightSequence5, nightSequence6]
-    #sounds_list = [nightSounds1,nightSounds2]
+    sounds_list = [nightSounds1,rainSounds1]
     nightPlayer.queue(music_list[nightNumber])
     nightPlayer.play()
-    #nightAmbientPlayer.queue(random.choice(sounds_list))
-    #nightAmbientPlayer.play()
+    nightAmbientPlayer.queue(random.choice(sounds_list))
+    nightAmbientPlayer.play()
     for player in playerList:
         if player.living:
             # Prompt the user to begin their turn
@@ -195,7 +195,9 @@ def night_sequence():
                 # Check to make sure the input is actually a number
                 serial_killer_target = get_user_input(player)
                 if serial_killer_target == "S":
-                    print("You will stay inside with your pet cat 'Clumpy' tonight.")
+                    print("You will stay inside with your pet cat 'Clumpy' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
+                    input()
+                    os.system('cls')
                     player.target = None
                 else:
                     print("You went to kill {0} tonight, ".format(playerList[serial_killer_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
@@ -227,7 +229,9 @@ def night_sequence():
                 # Check to make sure the input is actually a number
                 bodyguard_target = get_user_input(player)
                 if bodyguard_target == "S":
-                    print("You will stay inside with your pet cat 'Shadow' tonight.")
+                    print("You will stay inside with your pet cat 'Shadow' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
+                    input()
+                    os.system('cls')
                     player.target = None
                 else:
                     print("You went to guard {0} tonight, ".format(playerList[bodyguard_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
@@ -242,7 +246,9 @@ def night_sequence():
                 # Check to make sure the input is actually a number
                 escort_target = get_user_input(player)
                 if escort_target == "S":
-                    print("You will stay inside with your pet cat 'Bubble' tonight.")
+                    print("You will stay inside with your pet cat 'Bubble' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
+                    input()
+                    os.system('cls')
                     player.target = None
                 else:
                     print("You went to distract {0} tonight, ".format(playerList[escort_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
@@ -257,7 +263,9 @@ def night_sequence():
                 # Check to make sure the input is actually a number
                 lookout_target = get_user_input(player)
                 if lookout_target == "S":
-                    print("You will stay inside with your pet cat 'Lana' tonight.")
+                    print("You will stay inside with your pet cat 'Lana' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
+                    input()
+                    os.system('cls')
                     player.target = None
                 else:
                     print("You went to watch {0} tonight, ".format(playerList[lookout_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
@@ -272,7 +280,9 @@ def night_sequence():
                 # Check to make sure the input is actually a number
                 sheriff_target = get_user_input(player)
                 if sheriff_target == "S":
-                    print("You will stay inside with your pet cat 'Luna' tonight.")
+                    print("You will stay inside with your pet dog 'Luna' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
+                    input()
+                    os.system('cls')
                     player.target = None
                 else:
                     print("You went to investigate {0} tonight, ".format(playerList[sheriff_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
@@ -287,7 +297,9 @@ def night_sequence():
                 # Check to make sure the input is actually a number
                 vigilante_target = get_user_input(player)
                 if vigilante_target == "S":
-                    print("You will stay inside with your pet cat 'Max' tonight.")
+                    print("You will stay inside with your pet cat 'Max' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
+                    input()
+                    os.system('cls')
                     player.target = None
                 else:
                     print("You went to shoot {0} tonight, ".format(playerList[vigilante_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
@@ -303,7 +315,9 @@ def night_sequence():
                 # Check to make sure the input is actually a number
                 doctor_target = get_user_input(player)
                 if doctor_target == "S":
-                    print("You will stay inside with your pet cat 'Max' tonight.")
+                    print("You will stay inside with your pet dog 'Rex' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
+                    input()
+                    os.system('cls')
                     player.target = None
                 else:
                     print("You went to heal {0} tonight, ".format(playerList[doctor_target].name) + Fore.LIGHTRED_EX + "press any key to end your turn." + Fore.RESET)
@@ -356,6 +370,7 @@ def night_sequence():
             os.system('cls')
 
 
+
 # Output a list of all players to the user
 def print_remaining_players():
     print("[S] SKIP THE NIGHT AND DO NOTHING")
@@ -385,6 +400,7 @@ def fade_out(player):
         player.volume -= .005
         sleep(.02)
     player.pause()
+
 
 # Gradually increases the volume level of a selected track
 def fade_in(player):
@@ -516,7 +532,7 @@ startup()
 
 # Create players for the music and ambient sounds
 nightPlayer = pyglet.media.Player()
-nightAmbientPlayer = pyglet.media.Player
+nightAmbientPlayer = pyglet.media.Player()
 
 # Run the first night
 night_sequence()

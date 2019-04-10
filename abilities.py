@@ -201,16 +201,20 @@ def watch_ability(player):
     # TRAIT DEPENDENCIES: None
     tonights_visitors = "\033[45mYour target tonight was visited by "
     number_of_visitors = len(player.target.visitors)
-    if number_of_visitors > 0:
+    if number_of_visitors == 1:
+        for visitor in player.target.visitors:
+            tonights_visitors = (tonights_visitors + (visitor.name + ".\033[49m"))
+            number_of_visitors = 0
+            player.info.append(tonights_visitors)
+    elif number_of_visitors > 0:
         for visitor in player.target.visitors:
             if number_of_visitors > 1:
-                tonights_visitors  = (tonights_visitors +  visitor.name + ", ")
+                tonights_visitors = (tonights_visitors + visitor.name + ", ")
                 number_of_visitors -= 1
             else:
                 tonights_visitors = (tonights_visitors + ("and " + visitor.name + ".\033[49m"))
                 number_of_visitors = 0
                 player.info.append(tonights_visitors)
-                print(tonights_visitors)
         player.target.visitors.append(player)
     else:
         tonights_visitors = (tonights_visitors + " nobody.\033[49m")
