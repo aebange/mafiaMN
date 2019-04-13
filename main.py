@@ -20,7 +20,6 @@ init(convert=True)
 cwd = os.getcwd()
 # Used to fetch sound file locations
 
-nightNumber = 0
 deathList = []
 
 SCREEN_WIDTH = 110
@@ -157,23 +156,25 @@ def user_role_distribution(players, roles):
 
 # Start the game and explain the rules
 def startup():
-    type_writer("Welcome to ", delay=.1), sleep(1), print(Fore.RED + "MAFIA.")
+    type_writer("Welcome to ", delay=.1), sleep(1), print(Fore.RED + "MAFIA." + Fore.RESET)
     sniperShot2.play()
-    sleep(1)
-    type_writer("We will begin by informing the participants of their occupations.", beep=True)
-    sleep(1)
+    sleep(3)
+    print(" ")
+    print(" ")
+    print("CUSTOM VARIANT.")
+    woosh3.play()
+    sleep(2)
     goodNightBell.play()
+    print("Now, please go to sleep so the first night may begin.")
     sleep(5)
     os.system('cls')
 
 
-# Run through the first night
-def night_sequence():
-    music_list = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nightSequence5, nightSequence6]
-    sounds_list = [nightSounds1,rainSounds1]
-    nightPlayer.queue(music_list[nightNumber])
+# Run through the night
+def night_sequence(night_number):
+    nightPlayer.queue(musicList[night_number])
     nightPlayer.play()
-    nightAmbientPlayer.queue(random.choice(sounds_list))
+    nightAmbientPlayer.queue(random.choice(soundsList))
     nightAmbientPlayer.play()
     for player in playerList:
         if player.living:
@@ -183,6 +184,7 @@ def night_sequence():
             input()
             os.system('cls')
             # Inform the user about what they are and what they do
+            print("It is night number {0}.".format(night_number))
             night_type_writer("Good evening " + Fore.LIGHTMAGENTA_EX + player.name + Fore.RESET + ", you are a " + (
                 player.role.role_color()) + str(player.role.name) + "." + Back.RESET + Fore.RESET)
             print("You are {0}".format(player.role.description))
@@ -324,6 +326,9 @@ def night_sequence():
                     player.target = get_player_target(doctor_target)
                     input()
                     os.system('cls')
+        else:
+            # TODO: Add shit for dead people to do.
+            pass
     # Conduct actual night activities
     sorted_player_list = sorted(playerList, key=lambda x: x.role.priority, reverse=False)
     # Since sorted_player_list contains the roles sorted based on priority, this should work.
@@ -368,8 +373,39 @@ def night_sequence():
             print(Fore.LIGHTRED_EX + "Press enter to end your turn." + Fore.RESET)
             input()
             os.system('cls')
+    # The night has concluded
+    night_number += 1
+    return night_number
 
 
+
+def day_sequence(day_number):
+    day_number += 1
+    os.system('cls')
+    print("Day number {0}.".format(day_number))
+    dayTime.play()
+    sleep(3)
+    if len(deathList) >= 4:
+        print("Many of us perished in the night...")
+    elif len(deathList) >= 2:
+        print("Some of us perished in the night...")
+    elif len(deathList) == 1:
+        print("One of us perished in the night...")
+    else:
+        print("Fortunately, nobody was found dead last night.")
+    sleep(2)
+    for player in deathList:
+        deathNotification.play()
+        print("{0} was found dead last night.".format(player.name))
+        sleep(3)
+        print(" ")
+        # TODO: Color the role name here
+        roleReveal.play()
+        sleep(1)
+        print("Their role was {0}".format(player.role.name))
+        sleep(4)
+    input()
+    return day_number
 
 # Output a list of all players to the user
 def print_remaining_players():
@@ -503,7 +539,6 @@ def commit_role_action(player):
                 # Subtract one use from their pool of uses
                 player.role.uses -= 1
                 # Check for the function to be called for the user's role's ability and apply it
-                print("Infinite uses " + player.role.name)
                 dispatch[player.role.night_abilities](player)
             else:
                 # Player has an unlimited number of uses for their ability
@@ -530,12 +565,20 @@ user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRole
 # Start the game
 startup()
 
+nightNumber = 0
+dayNumber = 0
+
 # Create players for the music and ambient sounds
 nightPlayer = pyglet.media.Player()
 nightAmbientPlayer = pyglet.media.Player()
 
+# Create lists of the music and ambient sounds to be played
+musicList = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nightSequence5, nightSequence6]
+soundsList = [nightSounds1, rainSounds1]
+
 # Run the first night
-night_sequence()
+nightNumber = night_sequence(nightNumber)
+dayNumber = day_sequence(dayNumber)
 
 # Prevent the screen from closing
 input()

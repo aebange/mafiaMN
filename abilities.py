@@ -3,25 +3,26 @@ from time import sleep
 
 from file_directory import *
 
+deathList = []
 
 # UNRELATED TO ABILITIES
 def play_kill_sound(player):
     mafia_kill_sound = random.choice(mafiaKillSounds)
     serial_kill_sound = random.choice(serialKillSounds)
     arson_kill_sound = random.choice(arsonKillSounds)
-    if player.role == "Serial Killer":
+    if player.role.name == "Serial Killer":
         serial_kill_sound.play()
         sleep(5)
         return
-    elif player.role == "Godfather":
+    elif player.role.name == "Godfather":
         mafia_kill_sound.play()
         sleep(8)
         return
-    elif player.role == "Vigilante":
+    elif player.role.name == "Vigilante":
         mafia_kill_sound.play()
         sleep(8)
         return
-    elif player.role == "Arson":
+    elif player.role.name == "Arson":
         arson_kill_sound.play()
         sleep(12)
         return
@@ -115,7 +116,9 @@ def murder_ability(player):
             gunFight1.play()
             sleep(7)
             selected_bodyguard.alive = False
+            deathList.append(selected_bodyguard)
             player.alive = False
+            deathList.append(player)
             selected_bodyguard.info.append("\033[41mYour target was attacked last night! You and the assailant were both slain in the shootout!\033[49m")
             player.info.append("\033[41mYour target was protected by a bodyguard! You and the bodyguard were both slain in the shootout!\033[49m")
             bodyguard_list.remove(selected_bodyguard)
@@ -129,7 +132,9 @@ def murder_ability(player):
             gunFight1.play()
             sleep(7)
             selected_bodyguard.alive = False
+            deathList.append(selected_bodyguard)
             player.alive = False
+            deathList.append(player)
             selected_bodyguard.info.append("\033[41mYour target was attacked last night! You and the assailant were both slain in the shootout!\033[49m")
             player.info.append("\033[41mYour target was protected by a bodyguard! You and the bodyguard were both slain in the shootout!\033[49m")
     elif "Vested" in player.target.status.keys():
@@ -140,13 +145,14 @@ def murder_ability(player):
         return
     else:
         # This person is now dead and will remain that way unless healed
-        if player.role == "Serial Killer":
-            print("\033[41mYou hear the sickening combination of rapid knife cuts and gunfire.\033[49m")
+        if player.role.name == "Serial Killer":
+            print("\033[41mYou hear a sickening combination of rapid knife cuts and gunfire in the night.\033[49m")
             play_kill_sound(player)
         else:
             print("\033[41mYou hear sounds of combat in this quiet town.\033[49m")
             play_kill_sound(player)
         player.target.alive = False
+        deathList.append(player.target)
         player.target.info.append("\033[41mYou have been killed in the night. Your cold body will be found in the morning.\033[49m")
         if player.role.alignment == "Town" or player.role.alignment == "Mafia":
             player.target.info.append("Though you are dead, you can still win if your team achieves victory.")
@@ -172,6 +178,7 @@ def heal_ability(player):
         else:
             # The healer's target is currently dead.
             player.target.alive = True
+            deathList.remove(player.target)
             player.target.info.append("\033[42mYou were brutally attacked and left for dead, but a stranger arrived and nursed you back to health.\033[49m")
             player.info.append("\033[42mYour target was brutally attacked last night. You were able to anonymously nurse them back to health.\033[49m")
     # The action was completed without issue

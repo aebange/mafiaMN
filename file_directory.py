@@ -1,7 +1,9 @@
 import pyglet
 
 # General sound effects
+woosh1 = pyglet.resource.media("sounds/misc/woosh1.wav", streaming=False)
 woosh2 = pyglet.resource.media("sounds/misc/woosh2.wav", streaming=False)
+woosh3 = pyglet.resource.media("sounds/misc/woosh3.wav", streaming=False)
 newLineBeep = pyglet.resource.media("sounds/misc/newLineBeep1.wav", streaming=False)
 sniperShot2 = pyglet.resource.media("sounds/gunshots/sniperShot2.wav", streaming=False)
 chatSound = pyglet.resource.media("sounds/misc/chatSound.wav", streaming=False)
