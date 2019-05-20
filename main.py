@@ -35,7 +35,7 @@ def generate_click_list():
     i = 0
     while True:
         i += 1
-        temp = pyglet.resource.media("sounds/clicks/keyboardTyping%d.wav" % i, streaming=False)
+        temp = pyglet.resource.media("sounds/clicks/keyboardTyping%d.mp3" % i, streaming=False)
         click_list.append(temp)
         if i == 11:
             return click_list

@@ -2,6 +2,7 @@ import random
 from time import sleep
 
 from file_directory import *
+from globalVars import deathList
 
 deathList = []
 
