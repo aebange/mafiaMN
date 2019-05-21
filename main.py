@@ -7,7 +7,10 @@ from colorama import init, Fore, Back
 from abilities import *
 from classes import Player, Role
 from file_directory import *
+from globalVars import *
 from roles import neutralRolesList, mafiaRolesList, townRolesList
+
+# TODO: Improve/Investigate slow import time.
 
 ## Dependencies list
 # pip install pyglet
@@ -19,8 +22,6 @@ init(convert=True)
 # Used to fetch current working directory of filesystem
 cwd = os.getcwd()
 # Used to fetch sound file locations
-
-deathList = []
 
 SCREEN_WIDTH = 110
 
@@ -120,14 +121,14 @@ def night_type_writer(string, beep=False, color="W", delay=.008):
 def user_identification():
     i = 0
     player_list = []
-    player_list.append(Player("Alex", 0, None, True, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Maddie", 1, None, True, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Tyler", 2, None, False, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Will", 3, None, True, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Jason", 4, None, True, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Andrew", 5, None, True, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Gillian", 6, None, True, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Nick", 7, None, True, {}, "NULL", "NULL", [], []))
+    player_list.append(Player("Alex", 0, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Maddie", 1, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Tyler", 2, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Will", 3, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Jason", 4, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Andrew", 5, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Gillian", 6, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Nick", 7, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
     # while True:
     #     current_player = Player("AWAITING_INSTANTIATION", i, None, True, {}, "NULL", "NULL", [], [])
     #     print("Would you like to add a new player?")
@@ -151,6 +152,7 @@ def user_role_distribution(players, roles):
     shuffled_roles = random.sample(roles, len(roles))
     for player in players:
         player.role = shuffled_roles[i]
+        player.uses = shuffled_roles[i].uses
         i += 1
 
 
@@ -174,6 +176,7 @@ def startup():
 def night_sequence(night_number):
     nightPlayer.queue(musicList[night_number])
     nightPlayer.play()
+    deathList.clear()
     nightAmbientPlayer.queue(random.choice(soundsList))
     nightAmbientPlayer.play()
     for player in playerList:
@@ -352,9 +355,9 @@ def night_sequence(night_number):
     sleep(2)
     os.system('cls')
     for player in playerList:
-        if player in deathList:
+        if player in permaDeathList:
             # This player has been dead for at least one night and has no turn.
-            print(player.name + " is dead and cannot do anything." + Fore.LIGHTRED_EX + "Press enter to skip them." + Fore.RESET)
+            print(player.name + " is dead and cannot do anything." + Fore.LIGHTRED_EX + " Press enter to skip them." + Fore.RESET)
             input()
             os.system('cls')
             pass
@@ -369,14 +372,13 @@ def night_sequence(night_number):
                     print(info)
                 if not player.living:
                     # This player is now 100% dead
-                    deathList.append(player)
+                    permaDeathList.append(player)
             print(Fore.LIGHTRED_EX + "Press enter to end your turn." + Fore.RESET)
             input()
             os.system('cls')
     # The night has concluded
     night_number += 1
     return night_number
-
 
 
 def day_sequence(day_number):
@@ -393,7 +395,7 @@ def day_sequence(day_number):
         print("One of us perished in the night...")
     else:
         print("Fortunately, nobody was found dead last night.")
-    sleep(2)
+    sleep(4)
     for player in deathList:
         deathNotification.play()
         print("{0} was found dead last night.".format(player.name))
@@ -406,6 +408,7 @@ def day_sequence(day_number):
         sleep(4)
     input()
     return day_number
+
 
 # Output a list of all players to the user
 def print_remaining_players():
@@ -494,6 +497,12 @@ def generate_priority_list():
                     priority3Roles.append(obj)
                 else:
                     print("ERROR: INVALID self.type (Role) PRESENTED TO generate_priority_list FUNCTION!")
+        # Randomize the lists so the order players night_abilities are executed in is fair.
+        random.shuffle(priority0Roles)
+        random.shuffle(priority1Roles)
+        random.shuffle(priority2Roles)
+        random.shuffle(priority3Roles)
+
 
 
 def get_user_input(player):
@@ -524,7 +533,15 @@ def get_user_input(player):
 
 # Delegate player actions unto their targets, checking and handling potential remaining uses
 def commit_role_action(player):
-    if player.role.uses == 0:
+    if not player.living:
+        if player in permaDeathList:
+            # This player has been dead, do nothing
+            return
+        else:
+            # The player is dead and their ability will not be activated
+            player.info.append("\033[31mYou died before you could do anything.\033[39m")
+            return
+    if player.uses == 0:
         # The player is out of uses and their ability will not be activated
         player.info.append("\033[31mYou are out of uses for that ability and couldn't do anything.\033[39m")
         # TODO: This isn't the best way to handle this, in the future block them out during the first phase of the night
@@ -534,10 +551,10 @@ def commit_role_action(player):
             # Player has no night abilities
             pass
         else:
-            if not player.role.uses == 666:
+            if not player.uses == 666:
                 # Player has a limited number of uses for their ability
                 # Subtract one use from their pool of uses
-                player.role.uses -= 1
+                player.uses -= 1
                 # Check for the function to be called for the user's role's ability and apply it
                 dispatch[player.role.night_abilities](player)
             else:

@@ -2,9 +2,8 @@ import random
 from time import sleep
 
 from file_directory import *
-from globalVars import deathList
+from globalVars import *
 
-deathList = []
 
 # UNRELATED TO ABILITIES
 def play_kill_sound(player):
@@ -54,13 +53,13 @@ def bulletproof_vest_ability(player):
     # IMMUNITY DEPENDENCIES: None
     # STATUS DEPENDENCIES: None
     # TRAIT DEPENDENCIES:
-    if player.role.uses > 0:
+    if player.uses > 0:
         temp_dict = {"Vested": player}
         player.status.update(temp_dict)
         # Subtract one use from the players uses
-        player.role.uses -= 1
+        player.uses -= 1
         # TODO: Remove uses from this section, it should be handled by the commit_action() function in main
-        player.info.append("You can use your vest for {0} more night(s)".format(player.role.uses))
+        player.info.append("You can use your vest for {0} more night(s)".format(player.uses))
         # The action was completed without issue
     else:
         # The user is out of vests and should never have reached this function
@@ -84,7 +83,7 @@ def role_block_ability(player):
     # Check for status dependencies
     if "Vested" in player.target.status.keys():
         del player.target.status["Vested"]
-        player.target.role.uses += 1
+        player.target.uses += 1
         # TODO: Remove uses from this section, it should be handled by the commit_action() function in main
         player.target.info.append("\033[45mAn attractive person visited you tonight, distracting you until the morning. You have been role-blocked!\033[49m")
     else:
@@ -104,21 +103,21 @@ def murder_ability(player):
             # This person could not be killed this way
             player.info.append("\033[45mYour target is night immune tonight, and cannot be killed this way!\033[49m")
             return
-    # This person was guarded and now both you and one of the guards are dead
+    # This target was guarded and now both you and one of the guards will die
     if "Guarded" in player.target.status.keys():
         bodyguard_list = player.target.status["Guarded"]
         # Select one of the multiple possible bodyguards that will give their lives to save the target
         bodyguard_list_length = len(bodyguard_list)
         if bodyguard_list_length > 1:
-            # There is more than one bodyguard, pick a random one to kill
+            # There is more than one bodyguard guarding the target, pick a random one to kill
             selected_bodyguard_number = random.randrange(0,(bodyguard_list_length))
             selected_bodyguard = bodyguard_list[selected_bodyguard_number]
             print("\033[41mYou hear the violent, harsh rapport of an old fashioned shootout.\033[49m")
             gunFight1.play()
             sleep(7)
-            selected_bodyguard.alive = False
+            selected_bodyguard.living = False
             deathList.append(selected_bodyguard)
-            player.alive = False
+            player.living = False
             deathList.append(player)
             selected_bodyguard.info.append("\033[41mYour target was attacked last night! You and the assailant were both slain in the shootout!\033[49m")
             player.info.append("\033[41mYour target was protected by a bodyguard! You and the bodyguard were both slain in the shootout!\033[49m")
@@ -128,31 +127,37 @@ def murder_ability(player):
                 item.info.append("\033[42mYour target was attacked last night, however someone else moved to engage the killer before you could!\033[49m")
         else:
             selected_bodyguard = bodyguard_list[0]
-            # There is only one bodyguard
+            # There is only one bodyguard protecting the target
             print("\033[41mYou hear the violent, harsh rapport of an old fashioned shootout.\033[49m")
             gunFight1.play()
             sleep(7)
-            selected_bodyguard.alive = False
+            selected_bodyguard.living = False
             deathList.append(selected_bodyguard)
-            player.alive = False
+            player.living = False
             deathList.append(player)
+            # No bodyguards are protecting this target anymore, remove status
+            del player.target.status["Guarded"]
             selected_bodyguard.info.append("\033[41mYour target was attacked last night! You and the assailant were both slain in the shootout!\033[49m")
             player.info.append("\033[41mYour target was protected by a bodyguard! You and the bodyguard were both slain in the shootout!\033[49m")
     elif "Vested" in player.target.status.keys():
-        # The player was wearing a bulletproof vest that protected them from harm,
+        # The target was wearing a bulletproof vest that protected them from harm
         player.target.info.append("\033[42mSomeone shot you on your porch last night, however your bulletproof vest miraculously absorbed all the damage!\033[49m")
         print("\033[41mYou hear sounds of combat in this quiet town.\033[49m")
         play_kill_sound(player)
         return
+    elif player.target.living == False:
+        # The target is already dead
+        player.info.append("\033[45mYou found your target's corpse alone in their home, they were already killed before you arrived!\033[49m")
+        return
     else:
-        # This person is now dead and will remain that way unless healed
+        # The target wasn't protected or immune and is now dead unless healed
         if player.role.name == "Serial Killer":
             print("\033[41mYou hear a sickening combination of rapid knife cuts and gunfire in the night.\033[49m")
             play_kill_sound(player)
         else:
             print("\033[41mYou hear sounds of combat in this quiet town.\033[49m")
             play_kill_sound(player)
-        player.target.alive = False
+        player.target.living = False
         deathList.append(player.target)
         player.target.info.append("\033[41mYou have been killed in the night. Your cold body will be found in the morning.\033[49m")
         if player.role.alignment == "Town" or player.role.alignment == "Mafia":
@@ -178,7 +183,7 @@ def heal_ability(player):
             return
         else:
             # The healer's target is currently dead.
-            player.target.alive = True
+            player.target.living = True
             deathList.remove(player.target)
             player.target.info.append("\033[42mYou were brutally attacked and left for dead, but a stranger arrived and nursed you back to health.\033[49m")
             player.info.append("\033[42mYour target was brutally attacked last night. You were able to anonymously nurse them back to health.\033[49m")
