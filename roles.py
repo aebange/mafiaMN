@@ -111,6 +111,7 @@ serial_killer = Role(
     1)  # Role Priority
 
 # Included roles
-townRolesList = [citizen, bodyguard, lookout, escort, doctor, sheriff, mayor, vigilante]
+##townRolesList = [citizen, bodyguard, lookout, escort, doctor, sheriff, mayor, vigilante]
+townRolesList = [vigilante, vigilante, vigilante, vigilante, vigilante, vigilante, vigilante ,vigilante]
 neutralRolesList = [serial_killer]
 mafiaRolesList = []

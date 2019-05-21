@@ -7,7 +7,10 @@ from colorama import init, Fore, Back
 from abilities import *
 from classes import Player, Role
 from file_directory import *
+from globalVars import *
 from roles import neutralRolesList, mafiaRolesList, townRolesList
+
+# TODO: Improve/Investigate slow import time.
 
 ## Dependencies list
 # pip install pyglet
@@ -19,8 +22,6 @@ init(convert=True)
 # Used to fetch current working directory of filesystem
 cwd = os.getcwd()
 # Used to fetch sound file locations
-
-deathList = []
 
 SCREEN_WIDTH = 110
 
@@ -120,14 +121,14 @@ def night_type_writer(string, beep=False, color="W", delay=.008):
 def user_identification():
     i = 0
     player_list = []
-    player_list.append(Player("Alex", 0, None, True, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Maddie", 1, None, True, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Tyler", 2, None, False, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Will", 3, None, True, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Jason", 4, None, True, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Andrew", 5, None, True, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Gillian", 6, None, True, {}, "NULL", "NULL", [], []))
-    player_list.append(Player("Nick", 7, None, True, {}, "NULL", "NULL", [], []))
+    player_list.append(Player("Alex", 0, None, True, {}, "NULL", "NULL", [], [], "NULL"))
+    player_list.append(Player("Maddie", 1, None, True, {}, "NULL", "NULL", [], [], "NULL"))
+    player_list.append(Player("Tyler", 2, None, True, {}, "NULL", "NULL", [], [], "NULL"))
+    player_list.append(Player("Will", 3, None, True, {}, "NULL", "NULL", [], [], "NULL"))
+    player_list.append(Player("Jason", 4, None, True, {}, "NULL", "NULL", [], [], "NULL"))
+    player_list.append(Player("Andrew", 5, None, True, {}, "NULL", "NULL", [], [], "NULL"))
+    player_list.append(Player("Gillian", 6, None, True, {}, "NULL", "NULL", [], [], "NULL"))
+    player_list.append(Player("Nick", 7, None, True, {}, "NULL", "NULL", [], [], "NULL"))
     # while True:
     #     current_player = Player("AWAITING_INSTANTIATION", i, None, True, {}, "NULL", "NULL", [], [])
     #     print("Would you like to add a new player?")
@@ -174,6 +175,7 @@ def startup():
 def night_sequence(night_number):
     nightPlayer.queue(musicList[night_number])
     nightPlayer.play()
+    deathList.clear()
     nightAmbientPlayer.queue(random.choice(soundsList))
     nightAmbientPlayer.play()
     for player in playerList:
@@ -352,9 +354,9 @@ def night_sequence(night_number):
     sleep(2)
     os.system('cls')
     for player in playerList:
-        if player in deathList:
+        if player in permaDeathList:
             # This player has been dead for at least one night and has no turn.
-            print(player.name + " is dead and cannot do anything." + Fore.LIGHTRED_EX + "Press enter to skip them." + Fore.RESET)
+            print(player.name + " is dead and cannot do anything." + Fore.LIGHTRED_EX + " Press enter to skip them." + Fore.RESET)
             input()
             os.system('cls')
             pass
@@ -369,14 +371,13 @@ def night_sequence(night_number):
                     print(info)
                 if not player.living:
                     # This player is now 100% dead
-                    deathList.append(player)
+                    permaDeathList.append(player)
             print(Fore.LIGHTRED_EX + "Press enter to end your turn." + Fore.RESET)
             input()
             os.system('cls')
     # The night has concluded
     night_number += 1
     return night_number
-
 
 
 def day_sequence(day_number):
@@ -393,7 +394,7 @@ def day_sequence(day_number):
         print("One of us perished in the night...")
     else:
         print("Fortunately, nobody was found dead last night.")
-    sleep(2)
+    sleep(4)
     for player in deathList:
         deathNotification.play()
         print("{0} was found dead last night.".format(player.name))
@@ -406,6 +407,7 @@ def day_sequence(day_number):
         sleep(4)
     input()
     return day_number
+
 
 # Output a list of all players to the user
 def print_remaining_players():
