@@ -13,4 +13,3 @@ deathList = []
 
 # Used to track the players who have been dead for more than one round
 permaDeathList = []
-

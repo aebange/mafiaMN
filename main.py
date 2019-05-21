@@ -332,9 +332,12 @@ def night_sequence(night_number):
         else:
             # TODO: Add shit for dead people to do.
             pass
-    # Conduct actual night activities
-    sorted_player_list = sorted(playerList, key=lambda x: x.role.priority, reverse=False)
-    # Since sorted_player_list contains the roles sorted based on priority, this should work.
+    # Player night_ability execution, create randomized form of player list to make things fair
+    randomized_player_list = playerList.copy()
+    random.shuffle(randomized_player_list)
+    # randomized_player_list contains a shuffled version of playerList before that gets sorted by priority
+    sorted_player_list = sorted(randomized_player_list, key=lambda x: x.role.priority, reverse=False)
+    # sorted_player_list contains the roles sorted based on priority
     os.system('cls')
     dayTime.play()
     print("Tonight's events will now transpire...")
@@ -406,6 +409,30 @@ def day_sequence(day_number):
         sleep(1)
         print("Their role was {0}".format(player.role.name))
         sleep(4)
+    countdown_timer = 120
+    while countdown_timer >= 0:
+        mins, secs = divmod(countdown_timer,60)
+        time_format = '{:02d}:{:02d}'.format(mins, secs)
+        if countdown_timer == 60:
+            os.system('cls')
+            print("Time left to deliberate:")
+            print(time_format, end='\r')
+            print("Hit enter to continue, type 's' if you'd like to skip.")
+            i = input()
+            if i == 's':
+                print("You have opted to skip deliberation and go straight to accusations.")
+                sleep(2)
+                break
+            else:
+                countdown_timer -= 1
+                pass
+        else:
+            os.system('cls')
+            print("Time left to deliberate:")
+            print(time_format, end='\r')
+            sleep(1)
+            countdown_timer -= 1
+    print("Select a guy to hang")
     input()
     return day_number
 
@@ -498,11 +525,6 @@ def generate_priority_list():
                 else:
                     print("ERROR: INVALID self.type (Role) PRESENTED TO generate_priority_list FUNCTION!")
         # Randomize the lists so the order players night_abilities are executed in is fair.
-        random.shuffle(priority0Roles)
-        random.shuffle(priority1Roles)
-        random.shuffle(priority2Roles)
-        random.shuffle(priority3Roles)
-
 
 
 def get_user_input(player):
