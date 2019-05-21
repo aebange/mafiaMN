@@ -18,6 +18,7 @@ guiltyVerdict = pyglet.resource.media("sounds/misc/guiltyVerdict.mp3", streaming
 roleReveal = pyglet.resource.media("sounds/misc/roleReveal.mp3", streaming=False)
 votedInnocent = pyglet.resource.media("sounds/misc/votedInnocent.mp3", streaming=False)
 voteSound = pyglet.resource.media("sounds/misc/voteSound.mp3", streaming=False)
+voteComplete = pyglet.resource.media("sounds/misc/voteComplete.mp3", streaming=False)
 
 # Death sounds
 arsonKill1 = pyglet.resource.media("sounds/deathSounds/arsonKill1.mp3", streaming=False)
@@ -41,6 +42,9 @@ arsonKillSounds = [arsonKill1, arsonKill2]
 
 # Music
 goodNightBell = pyglet.resource.media("sounds/misc/goodNightBell.mp3", streaming=False)
+questioningMusic = pyglet.resource.media("sounds/music/questioningMusic.mp3", streaming=False)
+openingTheme = pyglet.resource.media("sounds/music/openingTheme.mp3", streaming=False)
+nightSequence1 = pyglet.resource.media("sounds/music/nightSequence1.mp3", streaming=False)
 nightSequence1 = pyglet.resource.media("sounds/music/nightSequence1.mp3", streaming=False)
 nightSequence2 = pyglet.resource.media("sounds/music/nightSequence2.mp3", streaming=False)
 nightSequence3 = pyglet.resource.media("sounds/music/nightSequence3.mp3", streaming=False)
