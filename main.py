@@ -483,7 +483,7 @@ def day_sequence(day_number):
         guiltyVerdict.play()
     elif guiltyVote == innocentVote:
         # Player was found innocent
-        print("There was a draw, therefore...")
+        print("There was a draw.")
         print("The town has found {} innocent of the accusations made against them.".format(player.name))
         votedInnocent
     else:
