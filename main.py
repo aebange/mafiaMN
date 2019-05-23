@@ -233,7 +233,7 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 bodyguard_target = get_user_input(player)
-                if bodyguard_target == "S":
+                if bodyguard_target.upper() == "S":
                     print("You will stay inside with your pet cat 'Shadow' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
                     input()
                     os.system('cls')
@@ -250,7 +250,7 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 escort_target = get_user_input(player)
-                if escort_target == "S":
+                if escort_target.upper() == "S":
                     print("You will stay inside with your pet cat 'Bubble' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
                     input()
                     os.system('cls')
@@ -267,7 +267,7 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 lookout_target = get_user_input(player)
-                if lookout_target == "S":
+                if lookout_target.upper() == "S":
                     print("You will stay inside with your pet cat 'Lana' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
                     input()
                     os.system('cls')
@@ -284,7 +284,7 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 sheriff_target = get_user_input(player)
-                if sheriff_target == "S":
+                if sheriff_target.upper() == "S":
                     print("You will stay inside with your pet dog 'Luna' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
                     input()
                     os.system('cls')
@@ -301,7 +301,7 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 vigilante_target = get_user_input(player)
-                if vigilante_target == "S":
+                if vigilante_target.upper() == "S":
                     print("You will stay inside with your pet cat 'Max' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
                     input()
                     os.system('cls')
@@ -319,7 +319,7 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 doctor_target = get_user_input(player)
-                if doctor_target == "S":
+                if doctor_target.upper() == "S":
                     print("You will stay inside with your pet dog 'Rex' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
                     input()
                     os.system('cls')
@@ -388,20 +388,20 @@ def night_sequence(night_number):
 def day_sequence(day_number):
     day_number += 1
     os.system('cls')
-    print("Day number {0}.".format(day_number))
+    print("\033[33mDay number {0}.\033[0m".format(day_number))
     dayTime.play()
     sleep(3)
     if len(deathList) >= 4:
         chatSound.play()
-        print("Many of us perished in the night...")
+        print("\033[41mMany of us perished in the night...\033[0m")
     elif len(deathList) >= 2:
         chatSound.play()
-        print("Some of us perished in the night...")
+        print("\033[31mSome of us perished in the night...\033[0m")
     elif len(deathList) == 1:
         chatSound.play()
-        print("One of us perished in the night...")
+        print("\033[91mOne of us perished in the night...\033[0m")
     else:
-        print("Fortunately, nobody was found dead last night.")
+        print("Fortunately, \033[32mnobody was found dead last night.\033[0m")
     sleep(4)
     for player in deathList:
         deathNotification.play()
@@ -413,95 +413,138 @@ def day_sequence(day_number):
         sleep(1)
         print("Their role was {0}".format(player.role.name))
         sleep(4)
-    countdown_timer = 120
+    countdown_timer = 65
     while countdown_timer >= 0:
         mins, secs = divmod(countdown_timer,60)
         time_format = '{:02d}:{:02d}'.format(mins, secs)
         if countdown_timer == 60:
             os.system('cls')
-            print("Time left to deliberate:")
-            print(time_format, end='\r')
+            print("Time left to deliberate: \033[1m{}\033[0m".format(time_format, end='\r'))
             chatSound.play()
-            print("Hit enter to continue, type 's' if you'd like to skip, or 'skip day' if you'd like to skip the entire day.")
+            print("\033[91mHit enter to continue, type 's' if you'd like to skip, or 'skip day'\033[0m if you'd like to skip the entire day.")
             i = input()
-            if i == 's':
+            if i.upper() == 'S':
                 chatSound.play()
-                print("You have opted to skip deliberation and go straight to the gallows.")
+                print("\033[45mYou have opted to skip deliberation and go straight to the gallows.\033[0m")
                 sleep(3)
                 break
-            elif i == "skip day":
+            elif i.upper() == "SKIP DAY":
                 return day_number
             else:
                 countdown_timer -= 1
                 pass
         else:
             os.system('cls')
-            print("Discuss anything you may have learned last night or any suspicions you may have, you will vote after deliberation on who to hang.")
-            print("Time left to deliberate:")
-            print(time_format, end='\r')
+            print("\033[91mDiscuss anything you may have learned last night or any suspicions you may have.\033[0m")
+            print("You will vote after deliberation on who to hang.")
+            print(" ")
+            print("Time left to deliberate: \033[1m{}\033[0m".format(time_format, end='\r'))
             sleep(1)
             countdown_timer -= 1
-    os.system('cls')
-    chatSound.play()
-    print("Who has the town selected to put on trial?")
-    print("-" * SCREEN_WIDTH)
-    print_remaining_players()
-    get_user_input(player)
-    voteSound.play()
-    print("The town has selected to place {} on trial. Their defense will now begin.".format(player.name))
-    sleep(3)
-    countdown_timer = 30
+    vote_number = 1
     trialPlayer.queue(questioningMusic)
-    trialPlayer.play()
-    while countdown_timer >= 0:
+    while vote_number <= 2:
         os.system('cls')
-        print("{}, you stand accused of conspiring against the town.".format(player.name))
-        print("{} you have {} seconds to defend yourself. No-one else may speak during this period.".format(player.name, countdown_timer))
-        countdown_timer -= 1
-        sleep(1)
-    countdown_timer = 45
-    chatSound2.play()
-    while countdown_timer >= 0:
+        chatSound.play()
+        if vote_number == 2:
+            print("There is still time to prosecute one more person...")
+        print("Who has the town selected to put on trial?")
+        print("-" * SCREEN_WIDTH)
+        print_remaining_players()
+        # Get desired target from town
+        player_number = get_user_input_vote()
+        if player_number == 666:
+            # Players have opted to skip the vote
+            voteSound.play()
+            print("\033[45mThe town has selected to skip the day.\033[0m")
+            sleep(3)
+            os.system('cls')
+            dayEnd.play()
+            print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
+            sleep(4)
+            return day_number
+        # Convert target number into player object
+        local_day_player = get_player_target(player_number)
+        voteSound.play()
+        print("The town has selected to place \033[94m{}\033[0m on trial. Their defense will now begin.".format(local_day_player.name))
+        sleep(3)
+        countdown_timer = 10
+        trialPlayer.play()
+        while countdown_timer >= 0:
+            os.system('cls')
+            print("\033[94m{}\033[0m, you stand accused of conspiring against the town.".format(local_day_player.name))
+            print("\033[94m{}\033[0m, you have \033[1m{} seconds\033[0m to defend yourself.".format(local_day_player.name, countdown_timer))
+            print("\033[41mNo-one else may speak during this period.\033[0m")
+            countdown_timer -= 1
+            sleep(1)
+        countdown_timer = 10
+        chatSound2.play()
+        while countdown_timer >= 0:
+            os.system('cls')
+            print("The remaining town members have \033[1m{} seconds\033[0m to deliberate.".format(countdown_timer))
+            print("Voters may abstain.")
+            print("\033[41mAll may now speak including the defendant.\033[0m")
+            countdown_timer -= 1
+            sleep(1)
         os.system('cls')
-        print("The remaining town members have {} seconds to deliberate. Voters may abstain. All may now speak including the  defendant.".format(countdown_timer))
-        countdown_timer -= 1
-        sleep(1)
+        # Get the number of users who voted innocent
+        innocentVote = get_integer_vote("\033[32minnocent\033[0m")
+        voteSound.play()
+        # Get the number of users who voted guilty
+        guiltyVote = get_integer_vote("\033[31mguilty\033[0m")
+        voteComplete.play()
+        trialPlayer.pause()
+        os.system('cls')
+        print("The votes have been collected and counted...")
+        sleep(4)
+        if guiltyVote > innocentVote:
+            # Player was found guilty
+            print("The town has found \033[94m{}\033[0m \033[31mGUILTY\033[0m of the accusations made against them.".format(local_day_player.name))
+            guiltyVerdict.play()
+            # TODO: Add execution sounds and methods
+            sleep(4)
+            print("\033[94m{}\033[0m has been \033[31mhanged\033[0m.".format(local_day_player.name))
+            local_day_player.living = False
+            sleep(2)
+            roleReveal.play()
+            sleep(1)
+            print("Their role was {0}".format(local_day_player.role.name))
+            sleep(5)
+            dayEnd.play()
+            print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
+            return day_number
+        elif guiltyVote == innocentVote:
+            # Player was found innocent
+            print("\033[45mThere was a draw.\033[0m")
+            print("The town has found \033[94m{}\033[0m \033[32mINNOCENT\033[0m of the accusations made against them.".format(local_day_player.name))
+            votedInnocent.play()
+            vote_number += 1
+            sleep(5)
+        else:
+            # Player was found innocent
+            print("The town has found \033[94m{}\033[0m \033[32mINNOCENT\033[0m of the accusations made against them.".format(local_day_player.name))
+            votedInnocent.play()
+            vote_number += 1
+            sleep(5)
+        trialPlayer.queue(questioningMusic)
+        trialPlayer.next_source()
+        guiltyVote = 0
+        innocentVote = 0
     os.system('cls')
-    # Get the number of users who voted innocent
-    innocentVote = get_integer_vote("\033[32minnocent\033[0m")
-    voteSound.play()
-    # Get the number of users who voted guilty
-    guiltyVote = get_integer_vote("\033[31mguilty\033[0m")
-    voteComplete.play()
-    trialPlayer.pause()
-    os.system('cls')
-    print("The votes have been collected and counted...")
-    sleep(3)
-    if guiltyVote > innocentVote:
-        # Player was found guilty
-        print("The town has found {} GUILTY of the accusations made against them.".format(player.name))
-        guiltyVerdict.play()
-    elif guiltyVote == innocentVote:
-        # Player was found innocent
-        print("There was a draw, therefore...")
-        print("The town has found {} innocent of the accusations made against them.".format(player.name))
-        votedInnocent
-    else:
-        # Player was found innocent
-        print("The town has found {} innocent of the accusations made against them.".format(player.name))
-        votedInnocent.play()
-    input()
+    dayEnd.play()
+    print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
+    sleep(4)
     return day_number
 
 
 # Output a list of all players to the user
 def print_remaining_players():
-    print("[S] SKIP THE NIGHT AND DO NOTHING")
+    print("[S] \033[35mSKIP THE NIGHT AND DO NOTHING\033[0m")
     for player in playerList:
         if player.living:
-            print("[{0}] {1}".format(player.number, player.name))
+            print("[{0}] \033[94m{1}\033[0m".format(player.number, player.name))
         else:
-            print("[X] {0}".format(player.name))
+            print("[X] \033[31m{0}\033[0m".format(player.name))
 
 
 ########################################################################################################################
@@ -548,7 +591,7 @@ def get_integer_vote(verdict):
                 number = input()
         print("{} people voted {}, is this correct?".format(number,verdict))
         local_answer = input()
-        if (local_answer.upper() == "Y") or (local_answer.upper == "YES") or (local_answer.upper == "YE") or (local_answer.upper == "YEAH") or (local_answer.upper == "YEAH!"):
+        if (local_answer.upper() == "Y") or (local_answer.upper() == "YES") or (local_answer.upper() == "YE") or (local_answer.upper() == "YEAH") or (local_answer.upper() == "YEAH!"):
             return number
         else:
             number = "NULL"
@@ -626,10 +669,12 @@ def get_user_input(player):
 
 
 # Used for filtering user input during the day
-def get_user_input_vote(player):
-    # TODO: This function is VERY broken
+def get_user_input_vote():
     while True:
         local_target = str(input())
+        if local_target.upper() == "S":
+            local_target = 666
+            return local_target
         if not local_target.isdigit():
             print("That wasn't the kind of number we were looking for," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
             sleep(2)
@@ -693,7 +738,7 @@ playerList = user_identification()
 user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRolesList))
 
 # Start the game
-startup()
+#startup()
 
 nightNumber = 0
 dayNumber = 0
@@ -709,7 +754,7 @@ musicList = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nig
 soundsList = [nightSounds1, rainSounds1]
 
 # Run the first night
-nightNumber = night_sequence(nightNumber)
+nightNumber = 1#night_sequence(nightNumber)
 dayNumber = day_sequence(dayNumber)
 
 # Prevent the screen from closing
