@@ -111,50 +111,9 @@ def night_type_writer(string, beep=False, color="W", delay=.008):
             sys.stdout.flush()
             sleep(delay)
 
-
 ########################################################################################################################
-# GAME MECHANIC FUNCTIONS
+# GAME LOOP FUNCTIONS
 ########################################################################################################################
-
-
-# Identify and define users, instantiating their classes
-def user_identification():
-    i = 0
-    player_list = []
-    player_list.append(Player("Alex", 0, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
-    player_list.append(Player("Maddie", 1, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
-    player_list.append(Player("Tyler", 2, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
-    player_list.append(Player("Will", 3, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
-    player_list.append(Player("Jason", 4, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
-    player_list.append(Player("Andrew", 5, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
-    player_list.append(Player("Gillian", 6, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
-    player_list.append(Player("Nick", 7, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
-    # while True:
-    #     current_player = Player("AWAITING_INSTANTIATION", i, None, True, {}, "NULL", "NULL", [], [])
-    #     print("Would you like to add a new player?")
-    #     input_choice = input()
-    #     if input_choice.lower() == "yes":
-    #         print("Please enter a name for this person:")
-    #         current_player.name = (str(input()))
-    #         player_list.append(current_player)
-    #         print("{0} has been added to the game as player {1}".format(current_player.name, i))
-    #         os.system('cls')
-    #         i += 1
-    #     else:
-    #         os.system('cls')
-    return player_list
-
-
-# Assign relevant roles to the users
-# Pass this function the playerList and a list containing all relevant roles
-def user_role_distribution(players, roles):
-    i = 0
-    shuffled_roles = random.sample(roles, len(roles))
-    for player in players:
-        player.role = shuffled_roles[i]
-        player.uses = shuffled_roles[i].uses
-        i += 1
-
 
 # Start the game and explain the rules
 def startup():
@@ -167,14 +126,23 @@ def startup():
     woosh3.play()
     sleep(2)
     goodNightBell.play()
-    print("Please close your eyes so the first night may begin.")
+    print("\033[91mPlease close your eyes\033[0m so the first night may begin.")
     sleep(5)
     os.system('cls')
 
 
 # Run through the night
 def night_sequence(night_number):
-    nightPlayer.queue(musicList[night_number])
+    print("NIGHT NUMBER {}".format(night_number))
+    desired_track = (musicList[night_number])
+    sleep(.5)
+    print("SKIPPED SONG.")
+    nightPlayer.next_source()
+    sleep(.5)
+    print("QUEING {}".format(str(desired_track)))
+    nightPlayer.queue(desired_track)
+    sleep(.5)
+    print("ATTEMPTING TO START PLAYER")
     nightPlayer.play()
     deathList.clear()
     nightAmbientPlayer.queue(random.choice(soundsList))
@@ -187,7 +155,7 @@ def night_sequence(night_number):
             input()
             os.system('cls')
             # Inform the user about what they are and what they do
-            print("It is night number {0}.".format(night_number))
+            print("\033[33mIt is night number {0}.\033[0m".format(night_number))
             night_type_writer("Good evening " + Fore.LIGHTMAGENTA_EX + player.name + Fore.RESET + ", you are a " + (
                 player.role.role_color()) + str(player.role.name) + "." + Back.RESET + Fore.RESET)
             print("You are {0}".format(player.role.description))
@@ -233,7 +201,7 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 bodyguard_target = get_user_input(player)
-                if bodyguard_target.upper() == "S":
+                if bodyguard_target == "S":
                     print("You will stay inside with your pet cat 'Shadow' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
                     input()
                     os.system('cls')
@@ -250,7 +218,7 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 escort_target = get_user_input(player)
-                if escort_target.upper() == "S":
+                if escort_target == "S":
                     print("You will stay inside with your pet cat 'Bubble' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
                     input()
                     os.system('cls')
@@ -267,7 +235,7 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 lookout_target = get_user_input(player)
-                if lookout_target.upper() == "S":
+                if lookout_target == "S":
                     print("You will stay inside with your pet cat 'Lana' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
                     input()
                     os.system('cls')
@@ -284,7 +252,7 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 sheriff_target = get_user_input(player)
-                if sheriff_target.upper() == "S":
+                if sheriff_target == "S":
                     print("You will stay inside with your pet dog 'Luna' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
                     input()
                     os.system('cls')
@@ -301,7 +269,7 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 vigilante_target = get_user_input(player)
-                if vigilante_target.upper() == "S":
+                if vigilante_target == "S":
                     print("You will stay inside with your pet cat 'Max' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
                     input()
                     os.system('cls')
@@ -319,7 +287,7 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 doctor_target = get_user_input(player)
-                if doctor_target.upper() == "S":
+                if doctor_target == "S":
                     print("You will stay inside with your pet dog 'Rex' tonight." + Fore.LIGHTRED_EX + " Press any key to end your turn." + Fore.RESET)
                     input()
                     os.system('cls')
@@ -353,7 +321,7 @@ def night_sequence(night_number):
     # Night phase one is complete and role actions have been executed, now output user night info
     os.system('cls')
     chatSound.play()
-    print("Tonight's events have concluded, please close your eyes so you may learn what transpired last night.")
+    print("Tonight's events have concluded, \033[91mplease close your eyes\033[0m so you may learn what transpired last night.")
     sleep(5)
     goodNightBell.play()
     sleep(2)
@@ -405,13 +373,13 @@ def day_sequence(day_number):
     sleep(4)
     for player in deathList:
         deathNotification.play()
-        print("{0} was found dead last night.".format(player.name))
+        print("\033[94m{0}\033[0m was found dead last night.".format(player.name))
         sleep(3)
         print(" ")
         # TODO: Color the role name here
         roleReveal.play()
         sleep(1)
-        print("Their role was {0}".format(player.role.name))
+        print("Their role was " + (player.role.role_color())+ "{0}\033[0m".format(player.role.name))
         sleep(4)
     countdown_timer = 65
     while countdown_timer >= 0:
@@ -450,7 +418,7 @@ def day_sequence(day_number):
             print("There is still time to prosecute one more person...")
         print("Who has the town selected to put on trial?")
         print("-" * SCREEN_WIDTH)
-        print_remaining_players()
+        print_remaining_players("Day")
         # Get desired target from town
         player_number = get_user_input_vote()
         if player_number == 666:
@@ -488,32 +456,34 @@ def day_sequence(day_number):
             sleep(1)
         os.system('cls')
         # Get the number of users who voted innocent
-        innocentVote = get_integer_vote("\033[32minnocent\033[0m")
+        innocent_vote = get_integer_vote("\033[32minnocent\033[0m")
         voteSound.play()
         # Get the number of users who voted guilty
-        guiltyVote = get_integer_vote("\033[31mguilty\033[0m")
+        guilty_vote = get_integer_vote("\033[31mguilty\033[0m")
         voteComplete.play()
         trialPlayer.pause()
         os.system('cls')
         print("The votes have been collected and counted...")
         sleep(4)
-        if guiltyVote > innocentVote:
+        if guilty_vote > innocent_vote:
             # Player was found guilty
             print("The town has found \033[94m{}\033[0m \033[31mGUILTY\033[0m of the accusations made against them.".format(local_day_player.name))
             guiltyVerdict.play()
             # TODO: Add execution sounds and methods
             sleep(4)
-            print("\033[94m{}\033[0m has been \033[31mhanged\033[0m.".format(local_day_player.name))
+            print("\033[94m{}\033[0m has been \033[31mHANGED\033[0m.".format(local_day_player.name))
             local_day_player.living = False
+            permaDeathList.append(local_day_player)
             sleep(2)
             roleReveal.play()
             sleep(1)
-            print("Their role was {0}".format(local_day_player.role.name))
+            # TODO: Hanging the serial killer crashes the game for some reason
+            print("Their role was " + (player.role.role_color()) + "{0}\033[0m".format(local_day_player.role.name))
             sleep(5)
             dayEnd.play()
             print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
             return day_number
-        elif guiltyVote == innocentVote:
+        elif guilty_vote == innocent_vote:
             # Player was found innocent
             print("\033[45mThere was a draw.\033[0m")
             print("The town has found \033[94m{}\033[0m \033[32mINNOCENT\033[0m of the accusations made against them.".format(local_day_player.name))
@@ -526,25 +496,42 @@ def day_sequence(day_number):
             votedInnocent.play()
             vote_number += 1
             sleep(5)
-        trialPlayer.queue(questioningMusic)
         trialPlayer.next_source()
-        guiltyVote = 0
-        innocentVote = 0
+        trialPlayer.queue(questioningMusic)
+        guilty_vote = 0
+        innocent_vote = 0
     os.system('cls')
     dayEnd.play()
     print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
     sleep(4)
+    goodNightBell.play()
+    print("\033[91mPlease close your eyes\033[0m so the first night may begin.")
+    sleep(5)
+    os.system('cls')
     return day_number
 
 
-# Output a list of all players to the user
-def print_remaining_players():
-    print("[S] \033[35mSKIP THE NIGHT AND DO NOTHING\033[0m")
+# Checks to see if the victory conditions have been met
+def check_victory_conditions():
+    victory_condition = None
+    serial_killer_alive = False
+    # Step 1. Check to see how many players are left
+    remaining_players = []
     for player in playerList:
-        if player.living:
-            print("[{0}] \033[94m{1}\033[0m".format(player.number, player.name))
-        else:
-            print("[X] \033[31m{0}\033[0m".format(player.name))
+        if player.living == True:
+            remaining_players.append(player)
+    # Step 2. Check to see if Serial Killer Won
+    for player in remaining_players:
+        if player.role.name == "Serial Killer":
+            serial_killer_alive = True
+            if len(remaining_players) <= 2:
+                victory_condition = "Serial Killer"
+                return victory_condition
+    if not serial_killer_alive:
+        victory_condition = "Town"
+        return victory_condition
+    else:
+        return victory_condition
 
 
 ########################################################################################################################
@@ -561,19 +548,104 @@ neutralKillingRoles = []
 
 
 # Gradually decreases the volume level of a selected track
-def fade_out(player):
-    while player.volume > 0:
-        player.volume -= .005
+def fade_out(audio_player, local_type="reset"):
+    while audio_player.volume > 0:
+        audio_player.volume -= .005
         sleep(.02)
-    player.pause()
+    audio_player.pause()
+    if local_type == "reset":
+        while audio_player.volume < 1:
+            audio_player.volume += .005
 
 
 # Gradually increases the volume level of a selected track
-def fade_in(player):
-    player.play()
-    while player.volume < 1:
-        player.volume += .005
+def fade_in(audio_player):
+    audio_player.play()
+    while audio_player.volume < 1:
+        audio_player.volume += .005
         sleep(.02)
+
+
+# Initialize global lists to store what roles apply to which type
+priority0Roles = []
+priority1Roles = []
+priority2Roles = []
+priority3Roles = []
+
+
+# Build a list of all objects based on attributes
+def generate_priority_list():
+    for obj in gc.get_objects():
+        if isinstance(obj, Role):
+            for item in obj.priority:
+                if item == 0:
+                    priority0Roles.append(obj)
+                elif item == 1:
+                    priority1Roles.append(obj)
+                elif item == 2:
+                    priority2Roles.append(obj)
+                elif item == 3:
+                    priority3Roles.append(obj)
+                else:
+                    print("ERROR: INVALID self.type (Role) PRESENTED TO generate_priority_list FUNCTION!")
+        # Randomize the lists so the order players night_abilities are executed in is fair.
+
+
+########################################################################################################################
+# GAME MECHANIC FUNCTIONS
+########################################################################################################################
+
+
+# Identify and define users, instantiating their classes
+def user_identification():
+    i = 0
+    player_list = []
+    player_list.append(Player("Alex", 0, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Maddie", 1, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Tyler", 2, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Will", 3, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Jason", 4, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Andrew", 5, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Gillian", 6, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    player_list.append(Player("Nick", 7, None, True, {}, "NULL", "NULL", [], [], "NULL", 0))
+    # while True:
+    #     current_player = Player("AWAITING_INSTANTIATION", i, None, True, {}, "NULL", "NULL", [], [])
+    #     print("Would you like to add a new player?")
+    #     input_choice = input()
+    #     if input_choice.lower() == "yes":
+    #         print("Please enter a name for this person:")
+    #         current_player.name = (str(input()))
+    #         player_list.append(current_player)
+    #         print("{0} has been added to the game as player {1}".format(current_player.name, i))
+    #         os.system('cls')
+    #         i += 1
+    #     else:
+    #         os.system('cls')
+    return player_list
+
+
+# Assign relevant roles to the users
+# Pass this function the playerList and a list containing all relevant roles
+def user_role_distribution(players, roles):
+    i = 0
+    shuffled_roles = random.sample(roles, len(roles))
+    for player in players:
+        player.role = shuffled_roles[i]
+        player.uses = shuffled_roles[i].uses
+        i += 1
+
+
+# Output a list of all players to the user
+def print_remaining_players(local_type="Night"):
+    if local_type.upper() == "DAY":
+        print("[S] \033[95mSKIP THE DAY AND DO NOTHING\033[0m")
+    else:
+        print("[S] \033[95mSKIP THE NIGHT AND DO NOTHING\033[0m")
+    for player in playerList:
+        if player.living:
+            print("[{0}] \033[94m{1}\033[0m".format(player.number, player.name))
+        else:
+            print("[X] \033[31m{0}\033[0m".format(player.name))
 
 
 # Take the target number recieved from the player and swap it for the corresponding player object
@@ -616,38 +688,13 @@ def generate_type_list():
                     print("ERROR: INVALID self.type (Role) PRESENTED TO generate_type_list FUNCTION!")
 
 
-# Initialize global lists to store what roles apply to which type
-priority0Roles = []
-priority1Roles = []
-priority2Roles = []
-priority3Roles = []
-
-
-# Build a list of all objects based on attributes
-def generate_priority_list():
-    for obj in gc.get_objects():
-        if isinstance(obj, Role):
-            for item in obj.priority:
-                if item == 0:
-                    priority0Roles.append(obj)
-                elif item == 1:
-                    priority1Roles.append(obj)
-                elif item == 2:
-                    priority2Roles.append(obj)
-                elif item == 3:
-                    priority3Roles.append(obj)
-                else:
-                    print("ERROR: INVALID self.type (Role) PRESENTED TO generate_priority_list FUNCTION!")
-        # Randomize the lists so the order players night_abilities are executed in is fair.
-
-
 # Used for filtering user input during the night
 def get_user_input(player):
     while True:
         local_target = str(input())
         if not local_target.isdigit():
-            if local_target == "S":
-                return local_target
+            if local_target.upper() == "S":
+                return local_target.upper()
             else:
                 print("That wasn't the kind of number we were looking for," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
                 sleep(2)
@@ -738,7 +785,7 @@ playerList = user_identification()
 user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRolesList))
 
 # Start the game
-#startup()
+startup()
 
 nightNumber = 0
 dayNumber = 0
@@ -753,9 +800,18 @@ dayPlayer = pyglet.media.Player()
 musicList = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nightSequence5, nightSequence6]
 soundsList = [nightSounds1, rainSounds1]
 
-# Run the first night
-nightNumber = 1#night_sequence(nightNumber)
-dayNumber = day_sequence(dayNumber)
+# Begin the day/night cycle
+while True:
+    nightNumber = night_sequence(nightNumber)
+    victoryCondition = check_victory_conditions()
+    if victoryCondition is not None:
+        break
+    dayNumber = day_sequence(dayNumber)
+    victoryCondition = check_victory_conditions()
+    if victoryCondition is not None:
+        break
+
+print("VICTORY FOR {}".format(victoryCondition))
 
 # Prevent the screen from closing
 input()
