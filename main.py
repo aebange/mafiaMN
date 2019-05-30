@@ -1,6 +1,7 @@
 import gc
 import os
 import sys
+from msvcrt import getch, kbhit
 
 from colorama import init, Fore, Back
 
@@ -12,7 +13,7 @@ from roles import neutralRolesList, mafiaRolesList, townRolesList
 
 # TODO: Improve/Investigate slow import time.
 
-## Dependencies list
+## Dependencies list (beyond included libs)
 # pip install pyglet
 # pip install colorama
 
@@ -117,6 +118,7 @@ def night_type_writer(string, beep=False, color="W", delay=.008):
 
 # Start the game and explain the rules
 def startup():
+    os.system('cls')
     type_writer("Welcome to ", delay=.1), sleep(1), print(Fore.RED + "MAFIA." + Fore.RESET)
     sniperShot2.play()
     sleep(3)
@@ -126,6 +128,8 @@ def startup():
     woosh3.play()
     sleep(2)
     goodNightBell.play()
+    print(" ")
+    print(" ")
     print("\033[91mPlease close your eyes\033[0m so the first night may begin.")
     sleep(5)
     os.system('cls')
@@ -133,16 +137,12 @@ def startup():
 
 # Run through the night
 def night_sequence(night_number):
-    print("NIGHT NUMBER {}".format(night_number))
     desired_track = (musicList[night_number])
-    sleep(.5)
-    print("SKIPPED SONG.")
+    sleep(.1)
     nightPlayer.next_source()
-    sleep(.5)
-    print("QUEING {}".format(str(desired_track)))
+    sleep(.1)
     nightPlayer.queue(desired_track)
-    sleep(.5)
-    print("ATTEMPTING TO START PLAYER")
+    sleep(.1)
     nightPlayer.play()
     deathList.clear()
     nightAmbientPlayer.queue(random.choice(soundsList))
@@ -159,9 +159,12 @@ def night_sequence(night_number):
             night_type_writer("Good evening " + Fore.LIGHTMAGENTA_EX + player.name + Fore.RESET + ", you are a " + (
                 player.role.role_color()) + str(player.role.name) + "." + Back.RESET + Fore.RESET)
             print("You are {0}".format(player.role.description))
+            print(" ")
             print(player.role.hint)
+            print(" ")
+            if player.uses != 666:
+                print(Fore.LIGHTRED_EX + "Remaining night ability uses: {}".format(player.uses) + Fore.RESET)
             if player.role.name == "Serial Killer":
-                print(" ")
                 print(Fore.LIGHTRED_EX + "Select one person to attempt to kill tonight by typing their number:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
@@ -397,6 +400,14 @@ def day_sequence(day_number):
                 sleep(3)
                 break
             elif i.upper() == "SKIP DAY":
+                os.system('cls')
+                dayEnd.play()
+                print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
+                sleep(4)
+                goodNightBell.play()
+                print("\033[91mPlease close your eyes\033[0m so the night may begin.")
+                sleep(5)
+                os.system('cls')
                 return day_number
             else:
                 countdown_timer -= 1
@@ -477,8 +488,7 @@ def day_sequence(day_number):
             sleep(2)
             roleReveal.play()
             sleep(1)
-            # TODO: Hanging the serial killer crashes the game for some reason
-            print("Their role was " + (player.role.role_color()) + "{0}\033[0m".format(local_day_player.role.name))
+            print("Their role was " + (local_day_player.role.role_color()) + "{0}\033[0m".format(local_day_player.role.name))
             sleep(5)
             dayEnd.play()
             print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
@@ -505,7 +515,7 @@ def day_sequence(day_number):
     print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
     sleep(4)
     goodNightBell.play()
-    print("\033[91mPlease close your eyes\033[0m so the first night may begin.")
+    print("\033[91mPlease close your eyes\033[0m so the night may begin.")
     sleep(5)
     os.system('cls')
     return day_number
@@ -624,6 +634,56 @@ def user_identification():
     return player_list
 
 
+# Adjusts the current index selection value based on which key has been pressed
+def change_option(key_answer,starting_selection, local_options):
+    if key_answer.upper() == "UP":
+        starting_selection += 1
+        if starting_selection > (len(local_options)-1):
+            new_selection = 0
+            return new_selection
+        else:
+            new_selection = starting_selection
+            return new_selection
+    if key_answer.upper() == "DOWN":
+        starting_selection -= 1
+        if starting_selection < 0:
+            new_selection = (len(local_options)-1)
+            return new_selection
+        else:
+            new_selection = starting_selection
+            return new_selection
+
+
+# Checks for keypresses, reads which keys are pressed
+def keypress(old_selection, local_options):
+    while True:
+        if kbhit():
+            keycode = ord(getch())
+            if keycode == 13:  # Enter
+                return old_selection
+            elif keycode == 224:  # Special keys (arrows, f keys, ins, del, etc.)
+                keycode = ord(getch())
+                if keycode == 80:  # Down arrow
+                    return change_option("Down",old_selection, local_options)
+                elif keycode == 72:  # Up arrow
+                    return change_option("Up",old_selection, local_options)
+
+
+# Returns a number representing an index selection value from a list of players
+# ONLY COMPATIBLE WITH WINDOWS CONSOLE
+def user_target_input(local_options):
+    selection = random.randrange(0,(len(local_options)))
+    while True:
+        if selection == len(local_options)-1:
+            print("[\033[95m{}\033[0m] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection]), end="\r")
+        else:
+            print("[\033[94m{}\033[0m] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection].name), end="\r")
+        new_selection = keypress(selection, local_options)
+        if new_selection == selection:
+            return new_selection
+        selection = new_selection
+
+
 # Assign relevant roles to the users
 # Pass this function the playerList and a list containing all relevant roles
 def user_role_distribution(players, roles):
@@ -646,6 +706,9 @@ def print_remaining_players(local_type="Night"):
             print("[{0}] \033[94m{1}\033[0m".format(player.number, player.name))
         else:
             print("[X] \033[31m{0}\033[0m".format(player.name))
+    print("-" * SCREEN_WIDTH)
+    print(" ")
+
 
 
 # Take the target number recieved from the player and swap it for the corresponding player object
@@ -691,28 +754,31 @@ def generate_type_list():
 # Used for filtering user input during the night
 def get_user_input(player):
     while True:
-        local_target = str(input())
-        if not local_target.isdigit():
-            if local_target.upper() == "S":
-                return local_target.upper()
+        # Generate a list of living players
+        living_player_list = []
+        for other_player in playerList:
+            if other_player.living == True:
+                living_player_list.append(other_player)
+        living_player_list.append("SKIP")
+        local_target = user_target_input(living_player_list)
+        # Check to see if user prompted to skip
+        if local_target == len(living_player_list)-1:
+            local_target = "S"
+            return local_target.upper()
+        if int(local_target) < len(playerList) and int(local_target) >= 0:
+            local_target = int(local_target)
+            if not playerList[local_target].living:
+                print("That person is dead," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
             else:
-                print("That wasn't the kind of number we were looking for," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
-                sleep(2)
-        else:
-            if int(local_target) < len(playerList) and int(local_target) >= 0:
-                local_target = int(local_target)
-                if not playerList[local_target].living:
-                    print("That person is dead," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
+                if local_target == player.number:
+                    for trait in player.role.traits:
+                        if trait == "Self-Target":
+                            return local_target
+                    print("You cannot target yourself," + Fore.LIGHTRED_EX + " choose another person please." + Fore.RESET)
                 else:
-                    if local_target == player.number:
-                        for trait in player.role.traits:
-                            if trait == "Self-Target":
-                                return local_target
-                        print("You cannot target yourself," + Fore.LIGHTRED_EX + " choose another person please." + Fore.RESET)
-                    else:
-                        return local_target
-            else:
-                print("That person doesn't exist," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
+                    return local_target
+        else:
+            print("That person doesn't exist," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
 
 
 # Used for filtering user input during the day
@@ -787,8 +853,8 @@ user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRole
 # Start the game
 startup()
 
-nightNumber = 0
-dayNumber = 0
+nightNumber = 1
+dayNumber = 1
 
 # Create players for the music and ambient sounds
 nightPlayer = pyglet.media.Player()
