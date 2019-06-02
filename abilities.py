@@ -1,8 +1,36 @@
 import random
 from time import sleep
 
+from colorama import Back
+
 from file_directory import *
 from globalVars import *
+
+standardKillDescriptorList = ["You hear shots ring through the streets...",
+                              "Sounds of combat echo through this quiet town...",
+                              "You hear harsh gunshots drown out a muffled scream...",
+                              ]
+
+serialKillDescriptorList = ["You hear a sickening combination of rapid knife cuts and gunfire in the night...",
+                            "The silence of the night is disturbed by an intermixing of cuts, screams, and laughter..."]
+
+standardCorpseDescriptorList = ["Their body was battered and had multiple bone fractures. They were shot at close range.",
+                                "They were riddled with bullets from a close range.",
+                                "They were shot at a close range.",
+                                "Their body was littered with bruises and marks, and a bullet was found in their chest.",
+                                "There were signs of a struggle in their home, ultimately leading to their death by gun wound."
+                                ]
+
+vigilanteCorpseDescriptorList = ["Bullets from a powerful pistol were found precisely buried into the victims major organs - the work of a professional.",
+                                 "A single bullet hole was found in the back of the victim's skull, they didn't know what hit them.",
+                                 "The victim clearly had no time to defend themselves, they were found dead in their bathroom - shot through the wall by a powerful pistol."
+                                 ]
+
+serialKillerCorpseDescriptorList = ["Knife cuts were found all over their body, they bled to death slowly.",
+                                    "Several bullet wounds and slashing cuts were found on the victim.",
+                                    "A large dagger was found buried in their back.",
+                                    "The victims limbs were almost severed from their body by deep knife cuts into their skin."
+                                    ]
 
 
 # UNRELATED TO ABILITIES
@@ -10,26 +38,34 @@ def play_kill_sound(player):
     mafia_kill_sound = random.choice(mafiaKillSounds)
     serial_kill_sound = random.choice(serialKillSounds)
     arson_kill_sound = random.choice(arsonKillSounds)
+    # NOTE: BODYGUARD IS EXCLUDED FROM THIS FUNCTION
     if player.role.name == "Serial Killer":
+        print(Back.RED + random.choice(serialKillDescriptorList) + Back.RESET)
+        player.target.death_description = random.choice(serialKillerCorpseDescriptorList)
         serial_kill_sound.play()
         sleep(5)
         return
     elif player.role.name == "Godfather":
+        print(Back.RED + random.choice(standardKillDescriptorList) + Back.RESET)
+        player.target.death_description = random.choice(standardCorpseDescriptorList)
         mafia_kill_sound.play()
         sleep(8)
         return
     elif player.role.name == "Vigilante":
+        print(Back.RED + random.choice(standardKillDescriptorList) + Back.RESET)
+        player.target.death_description = random.choice(vigilanteCorpseDescriptorList)
         mafia_kill_sound.play()
         sleep(8)
         return
     elif player.role.name == "Arson":
+        # TODO: Add kill and corpse descriptors for arsonist
         arson_kill_sound.play()
         sleep(12)
         return
     else:
-        mafia_kill_sound.play()
+        print("ERROR: ROLE HAS NO KILL DESCRIPTORS!")
         sleep(8)
-        return
+        input()
 
 
 # Protect one person each night from 1 attack, if the target is attacked then both you and the killer will die.
@@ -53,19 +89,13 @@ def bulletproof_vest_ability(player):
     # IMMUNITY DEPENDENCIES: None
     # STATUS DEPENDENCIES: None
     # TRAIT DEPENDENCIES:
-    if player.uses > 0:
-        temp_dict = {"Vested": player}
-        player.status.update(temp_dict)
-        # Subtract one use from the players uses
-        player.uses -= 1
-        # TODO: Remove uses from this section, it should be handled by the commit_action() function in main
-        player.info.append("You can use your vest for {0} more night(s)".format(player.uses))
-        # The action was completed without issue
-    else:
-        # The user is out of vests and should never have reached this function
-        return
+    temp_dict = {"Vested": player}
+    player.status.update(temp_dict)
+    player.info.append("You can use your vest for {0} more night(s)".format(player.uses))
+    # The action was completed without issue
 
 
+# Prevent a user from completing their night ability action
 def role_block_ability(player):
     # IMMUNITY DEPENDENCIES: None
     # STATUS DEPENDENCIES: "Vested"
@@ -110,7 +140,7 @@ def murder_ability(player):
         bodyguard_list_length = len(bodyguard_list)
         if bodyguard_list_length > 1:
             # There is more than one bodyguard guarding the target, pick a random one to kill
-            selected_bodyguard_number = random.randrange(0,(bodyguard_list_length))
+            selected_bodyguard_number = random.randrange(0, bodyguard_list_length)
             selected_bodyguard = bodyguard_list[selected_bodyguard_number]
             print("\033[41mYou hear the violent, harsh rapport of an old fashioned shootout.\033[49m")
             gunFight1.play()
@@ -142,25 +172,22 @@ def murder_ability(player):
     elif "Vested" in player.target.status.keys():
         # The target was wearing a bulletproof vest that protected them from harm
         player.target.info.append("\033[42mSomeone shot you on your porch last night, however your bulletproof vest miraculously absorbed all the damage!\033[49m")
-        print("\033[41mYou hear sounds of combat in this quiet town.\033[49m")
         play_kill_sound(player)
         return
-    elif player.target.living == False:
+    elif not player.target.living:
         # The target is already dead
         player.info.append("\033[45mYou found your target's corpse alone in their home, they were already killed before you arrived!\033[49m")
         return
     else:
         # The target wasn't protected or immune and is now dead unless healed
         if player.role.name == "Serial Killer":
-            print("\033[41mYou hear a sickening combination of rapid knife cuts and gunfire in the night.\033[49m")
             play_kill_sound(player)
         else:
-            print("\033[41mYou hear sounds of combat in this quiet town.\033[49m")
             play_kill_sound(player)
         player.target.living = False
         deathList.append(player.target)
         player.target.info.append("\033[41mYou have been killed in the night. Your cold body will be found in the morning.\033[49m")
-        if player.role.alignment == "Town" or player.role.alignment == "Mafia":
+        if player.target.role.alignment == "Town" or player.role.alignment == "Mafia":
             player.target.info.append("Though you are dead, you can still win if your team achieves victory.")
     # The action was completed without issue
 
@@ -177,7 +204,7 @@ def heal_ability(player):
             # This person cannot be healed
             player.info.append("\033[45mYour target is heal immune tonight, and couldn't be healed even if they were attacked.\033[49m")
             return
-        if player.target.living == True:
+        if player.target.living:
             # The healer's target was not harmed enough to require healing.
             player.info.append("\033[42mYour target did not require healing last night.\033[49m")
             return
@@ -217,7 +244,6 @@ def watch_ability(player):
     if number_of_visitors == 1:
         for visitor in player.target.visitors:
             tonights_visitors = (tonights_visitors + (visitor.name + ".\033[49m"))
-            number_of_visitors = 0
             player.info.append(tonights_visitors)
     elif number_of_visitors > 0:
         for visitor in player.target.visitors:

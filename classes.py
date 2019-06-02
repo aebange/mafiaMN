@@ -9,7 +9,7 @@ objectiveList = ["lynch all criminals and evildoers to restore justice to the to
 
 # Create the class structure for players
 class Player:
-    def __init__(self, name, number, role, living, status, last_will, target, info, visitors, death_info, uses):
+    def __init__(self, name, number, role, living, status, last_will, target, info, visitors, death_info, uses, death_description):
         # (String) Used for storing this person's name
         self.name = name
         # (Integer) Used for storing when this person should be prompted for information (in progressive order)
@@ -32,6 +32,8 @@ class Player:
         self.death_info = death_info
         # (Integer) Used for storing how many uses this person has left on their ability. 666 = infinite
         self.uses = uses
+        # (String) Used for storing how the player died
+        self.death_description = death_description
 
 
 # Create the class structure for roles

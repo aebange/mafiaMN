@@ -44,6 +44,7 @@ arsonKillSounds = [arsonKill1, arsonKill2]
 # Music
 goodNightBell = pyglet.resource.media("sounds/misc/goodNightBell.mp3", streaming=False)
 questioningMusic = pyglet.resource.media("sounds/music/questioningMusic.mp3", streaming=False)
+questioningMusicINTENSE = pyglet.resource.media("sounds/music/questioningMusicINTENSE.mp3", streaming=False)
 openingTheme = pyglet.resource.media("sounds/music/openingTheme.mp3", streaming=False)
 nightSequence1 = pyglet.resource.media("sounds/music/nightSequence1.mp3", streaming=False)
 nightSequence1 = pyglet.resource.media("sounds/music/nightSequence1.mp3", streaming=False)
