@@ -160,26 +160,26 @@ def night_sequence(night_number):
     if keyboardController:
         end_turn_instruction = "press ENTER to end your turn."
         end_turn_instruction_2 = "Press ENTER to end your turn."
-        begin_turn_instruction = " press ENTER to begin your turn please."
+        begin_turn_instruction = ", \033[91mpress ENTER to begin your turn please.\033[0m"
         skip_turn_instruction = " Press ENTER to skip them."
         learn_event_instruction = "press ENTER to learn what happened tonight."
     else:
         end_turn_instruction = "press A to end your turn."
         end_turn_instruction_2 = "Press A to end your turn."
-        begin_turn_instruction = " press A to begin your turn please."
+        begin_turn_instruction = ", \033[91mpress A to begin your turn please.\033[0m"
         skip_turn_instruction = " Press A to skip them."
         learn_event_instruction = "press A to learn what happened tonight."
     for player in playerList:
         if player.living:
             # Prompt the user to begin their turn
             woosh2.play()
-            print(Fore.LIGHTMAGENTA_EX + player.name + Fore.RESET + begin_turn_instruction)
+            print("{}{}".format(player.name, begin_turn_instruction))
             press_enter_key()
             os.system('cls')
             # Inform the user about what they are and what they do
             print("\033[33mIt is night number {0}.\033[0m".format(night_number))
             night_type_writer("Good evening " + Fore.LIGHTMAGENTA_EX + player.name + Fore.RESET + ", you are a " + (
-                player.role.role_color()) + str(player.role.name) + "." + Back.RESET + Fore.RESET)
+                player.role.role_color()) + str(player.role.name) + Back.RESET + Fore.RESET + ".")
             print("You are {0}".format(player.role.description))
             print(" ")
             print(player.role.hint)
@@ -354,12 +354,9 @@ def night_sequence(night_number):
     os.system('cls')
     for player in playerList:
         if player in permaDeathList:
-            # This player has been dead for at least one night and has no turn.
-            print(player.name + " is dead and cannot do anything." + Fore.LIGHTRED_EX + skip_turn_instruction + Fore.RESET)
-            press_enter_key()
-            os.system('cls')
             pass
         else:
+            woosh2.play()
             print(player.name + ", " + Fore.LIGHTRED_EX + learn_event_instruction + Fore.RESET)
             press_enter_key()
             os.system('cls')
@@ -400,10 +397,11 @@ def day_sequence(day_number):
         chatSound.play()
         print("\033[91mOne of us perished in the night...\033[0m")
     else:
-        print("Fortunately, \033[32mnobody was found dead last night.\033[0m")
+        print("Fortunately, \033[32mnobody was found dead last night\033[0m.")
     sleep(4)
     for player in deathList:
         deathNotification.play()
+        print("-" * SCREEN_WIDTH)
         print("\033[94m{0}\033[0m was found dead last night.".format(player.name))
         sleep(1)
         print()
@@ -438,7 +436,7 @@ def day_sequence(day_number):
                 break
             local_input = xboxController.sample_first_joystick()
             if local_input == [13, 1]:
-                local_deliberation_options = ["SKIP ENTIRE DAY", "SKIP DELIBERATION", "CONTINUE DELIBERATION"]
+                local_deliberation_options = ["\033[96mSKIP ENTIRE DAY\033[0m", "\033[96mSKIP DELIBERATION\033[0m", "\033[96mCONTINUE DELIBERATION\033[0m"]
                 os.system('cls')
                 print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference, end='\r'))
                 chatSound.play()
@@ -490,14 +488,30 @@ def day_sequence(day_number):
             new_time_difference = time_difference
     vote_number = 1
     if len(local_remaining_players) < 4:
+        trialPlayer.next_source()
+        trialPlayer.next_source()
+        trialPlayer.next_source()
         trialPlayer.queue(questioningMusicINTENSE)
     else:
+        trialPlayer.next_source()
+        trialPlayer.next_source()
+        trialPlayer.next_source()
         trialPlayer.queue(questioningMusic)
     while vote_number <= 2:
         os.system('cls')
         chatSound.play()
         if vote_number == 2:
             print("There is still time to prosecute one more person...")
+            if len(local_remaining_players) < 4:
+                trialPlayer.next_source()
+                trialPlayer.next_source()
+                trialPlayer.next_source()
+                trialPlayer.queue(questioningMusicINTENSE)
+            else:
+                trialPlayer.next_source()
+                trialPlayer.next_source()
+                trialPlayer.next_source()
+                trialPlayer.queue(questioningMusic)
         print("Who has the town selected to put on trial?")
         print("-" * SCREEN_WIDTH)
         print_remaining_players("Day")
@@ -513,14 +527,14 @@ def day_sequence(day_number):
         # Convert target number into player object
         local_day_player = get_player_target(player_number)
         voteSound.play()
-        print("The town has selected to place \033[94m{}\033[0m on trial. Their defense will now begin.".format(local_day_player.name))
+        print("The town has selected to place {} on trial. Their defense will now begin.".format(local_day_player.name))
         sleep(3)
         countdown_timer = 2
         trialPlayer.play()
         while countdown_timer >= 0:
             os.system('cls')
-            print("\033[94m{}\033[0m, you stand accused of conspiring against the town.".format(local_day_player.name))
-            print("\033[94m{}\033[0m, you have \033[1m{} seconds\033[0m to defend yourself.".format(local_day_player.name, countdown_timer))
+            print("{}, you stand accused of conspiring against the town.".format(local_day_player.name))
+            print("{}, you have \033[1m{} seconds\033[0m to defend yourself.".format(local_day_player.name, countdown_timer))
             print("\033[41mNo-one else may speak during this period.\033[0m")
             countdown_timer -= 1
             sleep(1)
@@ -547,23 +561,23 @@ def day_sequence(day_number):
         sleep(4)
         if completed_vote.upper() == "GUILTY":
             # Player was found guilty
-            print("The town has found \033[94m{}\033[0m \033[31mGUILTY\033[0m of the accusations made against them.".format(local_day_player.name))
+            print("The town has found {} \033[31mGUILTY\033[0m of the accusations made against them.".format(local_day_player.name))
             guiltyVerdict.play()
             # TODO: Add execution sounds and methods
-            sleep(4)
-            print("\033[94m{}\033[0m has been \033[31mHANGED\033[0m.".format(local_day_player.name))
+            sleep(2)
+            print("{} has been \033[31mHANGED\033[0m.".format(local_day_player.name))
             local_day_player.living = False
             permaDeathList.append(local_day_player)
             sleep(2)
             roleReveal.play()
             sleep(1)
-            print("Their role was " + (local_day_player.role.role_color()) + "{0}\033[0m".format(local_day_player.role.name))
+            print("Their role was " + (local_day_player.role.role_color()) + "{0}\033[0m.".format(local_day_player.role.name))
             sleep(5)
             end_day()
             return day_number
         elif completed_vote.upper() == "INNOCENT":
             # Player was found innocent
-            print("The town has found \033[94m{}\033[0m \033[32mINNOCENT\033[0m of the accusations made against them.".format(local_day_player.name))
+            print("The town has found {} \033[32mINNOCENT\033[0m of the accusations made against them.".format(local_day_player.name))
             votedInnocent.play()
             vote_number += 1
             local_remaining_players.append(local_day_player)
@@ -571,22 +585,18 @@ def day_sequence(day_number):
         elif completed_vote.upper() == "DRAW":
             # Player was found innocent, but through an even vote
             print("\033[45mThere was a draw.\033[0m")
-            print("The town has found \033[94m{}\033[0m \033[32mINNOCENT\033[0m of the accusations made against them.".format(local_day_player.name))
+            print("The town has found {} \033[32mINNOCENT\033[0m of the accusations made against them.".format(local_day_player.name))
             votedInnocent.play()
             vote_number += 1
             local_remaining_players.append(local_day_player)
             sleep(5)
         else:
             # Player was found innocent
-            print("The town has found \033[94m{}\033[0m \033[32mINNOCENT\033[0m of the accusations made against them.".format(local_day_player.name))
+            print("The town has found {} \033[32mINNOCENT\033[0m of the accusations made against them.".format(local_day_player.name))
             votedInnocent.play()
             vote_number += 1
             sleep(5)
         trialPlayer.next_source()
-        if len(local_remaining_players) < 4:
-            trialPlayer.queue(questioningMusicINTENSE)
-        else:
-            trialPlayer.queue(questioningMusic)
     end_day()
     return day_number
 
@@ -690,14 +700,14 @@ def generate_priority_list():
 def user_identification():
     i = 0
     player_list = []
-    player_list.append(Player("Alex", 0, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
-    player_list.append(Player("Maddie", 1, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
-    player_list.append(Player("Tyler", 2, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
-    player_list.append(Player("Will", 3, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
-    player_list.append(Player("Jason", 4, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
-    player_list.append(Player("Andrew", 5, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
-    player_list.append(Player("Gillian", 6, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
-    player_list.append(Player("Nick", 7, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
+    player_list.append(Player("\033[94mAlex\033[0m", "Alex", 0, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
+    player_list.append(Player("\033[94mMaddie\033[0m", "Maddie", 1, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
+    player_list.append(Player("\033[94mTyler\033[0m", "Tyler",  2, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
+    player_list.append(Player("\033[94mWill\033[0m", "Will",  3, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
+    player_list.append(Player("\033[94mJason\033[0m", "Jason", 4, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
+    player_list.append(Player("\033[94mAndrew\033[0m", "Andrew", 5, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
+    player_list.append(Player("\033[94mGillian\033[0m", "Gillian", 6, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
+    player_list.append(Player("\033[94mNick\033[0m", "Nick",  7, None, True, {}, "NULL", "NULL", [], [], "NULL", 0, "NULL"))
     # while True:
     #     current_player = Player("AWAITING_INSTANTIATION", i, None, True, {}, "NULL", "NULL", [], [])
     #     print("Would you like to add a new player?")
@@ -776,9 +786,9 @@ def user_target_input(local_options):
     selection = random.randrange(0, (len(local_options)))
     while True:
         if selection == len(local_options)-1:
-            print("[\033[95m{}\033[0m] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection]), end="\r")
+            print("[\033[35m{}\033[0m] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection]), end="\r")
         else:
-            print("[\033[94m{}\033[0m] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection].name), end="\r")
+            print("[{}] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection].name), end="\r")
         new_selection = keypress(selection, local_options)
         if new_selection == selection:
             if new_selection == len(local_options)-1:
@@ -798,7 +808,7 @@ def user_target_input(local_options):
 def user_day_input(local_options):
     selection = 2
     while True:
-        print("[\033[94m{}\033[0m] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection]), end="\r")
+        print("[{}] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection]), end="\r")
         new_selection = keypress(selection, local_options)
         if new_selection == selection:
             return new_selection
@@ -826,7 +836,7 @@ def print_remaining_players(local_type="Night"):
         if player.living:
             print("[{0}] \033[94m{1}\033[0m".format(player.number, player.name))
         else:
-            print("[X] \033[31m{0}\033[0m".format(player.name))
+            print("[X] \033[31m{0}\033[0m".format(player.raw_name))
     print("-" * SCREEN_WIDTH)
     print(" ")
 
@@ -852,7 +862,7 @@ def get_user_verdict_input(remaining_players, player_on_trial):
     for local_player in remaining_players:
         os.system('cls')
         print("\033[91mWhoever has the controller will answer for everyone to save time. Votes are public information.\033[0m")
-        print("\033[94m{}\033[0m, do you believe \033[94m{}\033[0m is \033[32minnocent\033[0m or \033[31mguilty\033[0m?".format(local_player.name, player_on_trial.name))
+        print("{}, do you believe {} is \033[32minnocent\033[0m or \033[31mguilty\033[0m?".format(local_player.name, player_on_trial.name))
         local_options = ["\033[32mINNOCENT\033[0m", "\033[31mGUILTY\033[0m", "ABSTAIN"]
         vote = user_day_input(local_options)
         if vote == 0:
@@ -1036,3 +1046,5 @@ print("VICTORY FOR {}".format(victoryCondition))
 
 # Prevent the screen from closing
 input()
+# Reveal the cursor again
+cursor.show()
