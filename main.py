@@ -22,8 +22,6 @@ from roles import neutralRolesList, mafiaRolesList, townRolesList
 # pip install colorama
 
 
-
-
 # Used to initialize colorama
 init(convert=True)
 # Used to fetch current working directory of filesystem
@@ -411,13 +409,14 @@ def day_sequence(day_number):
         print()
         chatSound.play()
         print(player.death_description)
-        sleep(3)
+        sleep(1)
         print(" ")
         # TODO: Color the role name here
         roleReveal.play()
         sleep(1)
         print("Their role was " + (player.role.role_color()) + "{0}\033[0m".format(player.role.name))
-        sleep(4)
+        sleep(2.5)
+    sleep(3)
     countdown_timer = 25
     start_time = perf_counter()
     new_time_difference = perf_counter()
@@ -452,14 +451,7 @@ def day_sequence(day_number):
                     sleep(1.5)
                     break
                 elif i == 0:
-                    os.system('cls')
-                    dayEnd.play()
-                    print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
-                    sleep(4)
-                    goodNightBell.play()
-                    print("\033[91mPlease close your eyes\033[0m so the night may begin.")
-                    sleep(5)
-                    os.system('cls')
+                    end_day()
                     return day_number
             new_time_difference = time_difference
         if keyboardController:
@@ -488,14 +480,7 @@ def day_sequence(day_number):
                     sleep(1.5)
                     break
                 elif i == 0:
-                    os.system('cls')
-                    dayEnd.play()
-                    print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
-                    sleep(4)
-                    goodNightBell.play()
-                    print("\033[91mPlease close your eyes\033[0m so the night may begin.")
-                    sleep(5)
-                    os.system('cls')
+                    end_day()
                     return day_number
                 else:
                     end_time = perf_counter()
@@ -521,12 +506,9 @@ def day_sequence(day_number):
         if player_number == "S":
             # Players have opted to skip the vote
             voteSound.play()
-            print("\033[45mThe town has selected to skip the day.\033[0m")
+            print("\033[45mThe town has selected to skip the day.\033[0m                                       ")
             sleep(3)
-            os.system('cls')
-            dayEnd.play()
-            print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
-            sleep(4)
+            end_day()
             return day_number
         # Convert target number into player object
         local_day_player = get_player_target(player_number)
@@ -577,14 +559,14 @@ def day_sequence(day_number):
             sleep(1)
             print("Their role was " + (local_day_player.role.role_color()) + "{0}\033[0m".format(local_day_player.role.name))
             sleep(5)
-            dayEnd.play()
-            print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
+            end_day()
             return day_number
         elif completed_vote.upper() == "INNOCENT":
             # Player was found innocent
             print("The town has found \033[94m{}\033[0m \033[32mINNOCENT\033[0m of the accusations made against them.".format(local_day_player.name))
             votedInnocent.play()
             vote_number += 1
+            local_remaining_players.append(local_day_player)
             sleep(5)
         elif completed_vote.upper() == "DRAW":
             # Player was found innocent, but through an even vote
@@ -592,6 +574,7 @@ def day_sequence(day_number):
             print("The town has found \033[94m{}\033[0m \033[32mINNOCENT\033[0m of the accusations made against them.".format(local_day_player.name))
             votedInnocent.play()
             vote_number += 1
+            local_remaining_players.append(local_day_player)
             sleep(5)
         else:
             # Player was found innocent
@@ -604,14 +587,7 @@ def day_sequence(day_number):
             trialPlayer.queue(questioningMusicINTENSE)
         else:
             trialPlayer.queue(questioningMusic)
-    os.system('cls')
-    dayEnd.play()
-    print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
-    sleep(4)
-    goodNightBell.play()
-    print("\033[91mPlease close your eyes\033[0m so the night may begin.")
-    sleep(5)
-    os.system('cls')
+    end_day()
     return day_number
 
 
@@ -676,6 +652,16 @@ priority1Roles = []
 priority2Roles = []
 priority3Roles = []
 
+
+def end_day():
+    os.system('cls')
+    dayEnd.play()
+    print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
+    sleep(3)
+    goodNightBell.play()
+    print("\033[91mPlease close your eyes\033[0m so the night may begin.")
+    sleep(3)
+    os.system('cls')
 
 # Build a list of all objects based on attributes
 def generate_priority_list():
@@ -784,8 +770,8 @@ def keypress(old_selection, local_options):
                 return change_option("Up", old_selection, local_options)  # Up arrow aka up left stick
 
 
-# Returns a number representing an index selection value from a list of targets
-# ONLY COMPATIBLE WITH WINDOWS CONSOLE
+# Returns the player number of the selected target
+# ONLY COMPATIBLE WITH WINDOWS CONSOLE WHEN IN KEYBOARD MODE
 def user_target_input(local_options):
     selection = random.randrange(0, (len(local_options)))
     while True:
@@ -795,6 +781,14 @@ def user_target_input(local_options):
             print("[\033[94m{}\033[0m] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection].name), end="\r")
         new_selection = keypress(selection, local_options)
         if new_selection == selection:
+            if new_selection == len(local_options)-1:
+                # The selection is the skip string
+                return new_selection
+            # Convert the local_options index value to its corresponding player object
+            new_selection = local_options[selection]
+            # Convert the player object to its integer number (which corresponds with its playerList index value)
+            new_selection = new_selection.number
+            # Return the player number (int)
             return new_selection
         selection = new_selection
 
@@ -838,8 +832,14 @@ def print_remaining_players(local_type="Night"):
 
 
 # Take the target number recieved from the player and swap it for the corresponding player object
+# This is only utilized after "S" has been filtered out. Skips will have already been processed
 def get_player_target(target_number):
-    for player in playerList:
+    # Generate the living player list
+    local_living_player_list = []
+    for local_player in playerList:
+        if local_player.living:
+            local_living_player_list.append(local_player)
+    for player in local_living_player_list:
         if player.number == target_number:
             return player
 
@@ -901,6 +901,7 @@ def get_user_night_action_input(local_player):
             if inner_player.living:
                 living_player_list.append(inner_player)
         living_player_list.append("SKIP")
+        # Returns the player number of the selected target
         local_target = user_target_input(living_player_list)
         # Check to see if user prompted to skip
         if local_target == len(living_player_list)-1:
@@ -910,6 +911,8 @@ def get_user_night_action_input(local_player):
             local_target = int(local_target)
             if not playerList[local_target].living:
                 print("That person is dead," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
+                print(living_player_list)
+                print(local_target)
             else:
                 if local_target == local_player.number:
                     for trait in local_player.role.traits:
@@ -933,6 +936,7 @@ def get_town_trial_vote():
             if other_player.living:
                 living_player_list.append(other_player)
         living_player_list.append("SKIP")
+        # Returns the player number of the selected target
         local_target = user_target_input(living_player_list)
         # Check to see if user prompted to skip
         if local_target == len(living_player_list)-1:
@@ -1002,7 +1006,7 @@ playerList = user_identification()
 user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRolesList))
 
 # Start the game
-startup()
+# startup()
 
 nightNumber = 1
 dayNumber = 1
