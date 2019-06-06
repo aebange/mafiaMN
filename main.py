@@ -37,6 +37,9 @@ SCREEN_WIDTH = 110
 # If this value is false, the game will seek input from an xbox controller
 keyboardController = False
 
+# If this value is true, the game will not erase lines as they are printed for controller input
+globalDebug = False
+
 ########################################################################################################################
 # VISUAL AND AUDIO EFFECT RELATED FUNCTIONS
 ########################################################################################################################
@@ -348,9 +351,9 @@ def night_sequence(night_number):
     os.system('cls')
     chatSound.play()
     print("Tonight's events have concluded, \033[91mplease close your eyes\033[0m so you may learn what transpired last night.")
-    sleep(5)
+    sleep(1)
     goodNightBell.play()
-    sleep(2)
+    sleep(3)
     os.system('cls')
     for player in playerList:
         if player in permaDeathList:
@@ -383,6 +386,8 @@ def day_sequence(day_number):
     # Generate a list of the remaining players
     local_remaining_players = []
     for local_player in playerList:
+        # Clear the player info from the night before
+        local_player.info = []
         if local_player.living:
             local_remaining_players.append(local_player)
     dayTime.play()
@@ -431,14 +436,20 @@ def day_sequence(day_number):
                 print("\033[91mDiscuss anything you may have learned last night or any suspicions you may have.\033[0m")
                 print("You will vote after deliberation on who to hang.")
                 print(" ")
-                print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference, end='\r'))
+                if globalDebug:
+                    print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference))
+                else:
+                    print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference), end='\r')
             if actual_time_difference <= 0:
                 break
             local_input = xboxController.sample_first_joystick()
             if local_input == [13, 1]:
                 local_deliberation_options = ["\033[96mSKIP ENTIRE DAY\033[0m", "\033[96mSKIP DELIBERATION\033[0m", "\033[96mCONTINUE DELIBERATION\033[0m"]
                 os.system('cls')
-                print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference, end='\r'))
+                if globalDebug:
+                    print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference))
+                else:
+                    print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference), end='\r')
                 chatSound.play()
                 print(
                     "\033[91mPlease select an option from the menu below.\033[0m.")
@@ -461,13 +472,19 @@ def day_sequence(day_number):
                 print("\033[91mDiscuss anything you may have learned last night or any suspicions you may have.\033[0m")
                 print("You will vote after deliberation on who to hang.")
                 print(" ")
-                print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference, end='\r'))
+                if globalDebug:
+                    print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference))
+                else:
+                    print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference), end='\r')
             if actual_time_difference <= 0:
                 break
             if kbhit():
                 local_deliberation_options = ["SKIP ENTIRE DAY", "SKIP DELIBERATION", "CONTINUE DELIBERATION"]
                 os.system('cls')
-                print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference, end='\r'))
+                if globalDebug:
+                    print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference))
+                else:
+                    print("Time left to deliberate: \033[1m{} seconds\033[0m".format(actual_time_difference), end='\r')
                 chatSound.play()
                 print(
                     "\033[91mPlease select an option from the menu below.\033[0m.")
@@ -552,7 +569,6 @@ def day_sequence(day_number):
         local_remaining_players.remove(local_day_player)
         # Get the number of users who voted innocent
         completed_vote = get_user_verdict_input(local_remaining_players, local_day_player)
-        voteSound.play()
         # Get the number of users who voted guilty
         voteComplete.play()
         trialPlayer.pause()
@@ -607,12 +623,12 @@ def check_victory_conditions():
     serial_killer_alive = False
     # Step 1. Check to see how many players are left
     remaining_players = []
-    for player in playerList:
-        if player.living:
-            remaining_players.append(player)
+    for local_overall_player in playerList:
+        if local_overall_player.living:
+            remaining_players.append(local_overall_player)
     # Step 2. Check to see if Serial Killer Won
-    for player in remaining_players:
-        if player.role.name == "Serial Killer":
+    for local_remaining_player in remaining_players:
+        if local_remaining_player.role.name == "Serial Killer":
             serial_killer_alive = True
             if len(remaining_players) <= 2:
                 victory_condition = "Serial Killer"
@@ -786,13 +802,20 @@ def user_target_input(local_options):
     selection = random.randrange(0, (len(local_options)))
     while True:
         if selection == len(local_options)-1:
-            print("[\033[35m{}\033[0m] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection]), end="\r")
+            if globalDebug:
+                print("[\033[35m{}\033[0m] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection]))
+            else:
+                print("[\033[35m{}\033[0m] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection]), end="\r")
         else:
-            print("[{}] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection].name), end="\r")
+            if globalDebug:
+                print("[{}] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection].name))
+            else:
+                print("[{}] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection].name), end="\r")
         new_selection = keypress(selection, local_options)
         if new_selection == selection:
             if new_selection == len(local_options)-1:
                 # The selection is the skip string
+                new_selection = "S"
                 return new_selection
             # Convert the local_options index value to its corresponding player object
             new_selection = local_options[selection]
@@ -808,7 +831,10 @@ def user_target_input(local_options):
 def user_day_input(local_options):
     selection = 2
     while True:
-        print("[{}] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection]), end="\r")
+        if globalDebug:
+            print("[{}] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection]))
+        else:
+            print("[{}] is your selection. \033[91mPress enter to submit.\033[0m    ".format(local_options[selection]), end="\r")
         new_selection = keypress(selection, local_options)
         if new_selection == selection:
             return new_selection
@@ -868,11 +894,14 @@ def get_user_verdict_input(remaining_players, player_on_trial):
         if vote == 0:
             # User voted innocent
             innocent_votes += 1
+            voteSound.play()
         elif vote == 1:
             # User voted guilty
             guilty_votes += 1
+            voteSound.play()
         else:
             # User voted to abstain
+            voteSound.play()
             pass
     if guilty_votes > innocent_votes:
         complete_vote = "GUILTY"
@@ -914,15 +943,12 @@ def get_user_night_action_input(local_player):
         # Returns the player number of the selected target
         local_target = user_target_input(living_player_list)
         # Check to see if user prompted to skip
-        if local_target == len(living_player_list)-1:
-            local_target = "S"
+        if local_target == "S":
             return local_target.upper()
         if int(local_target) < len(playerList) and int(local_target) >= 0:
             local_target = int(local_target)
             if not playerList[local_target].living:
                 print("That person is dead," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
-                print(living_player_list)
-                print(local_target)
             else:
                 if local_target == local_player.number:
                     for trait in local_player.role.traits:
@@ -949,8 +975,7 @@ def get_town_trial_vote():
         # Returns the player number of the selected target
         local_target = user_target_input(living_player_list)
         # Check to see if user prompted to skip
-        if local_target == len(living_player_list)-1:
-            local_target = "S"
+        if local_target == "S":
             return local_target.upper()
         if int(local_target) < len(playerList) and int(local_target) >= 0:
             local_target = int(local_target)
