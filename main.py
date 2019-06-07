@@ -579,8 +579,16 @@ def day_sequence(day_number):
             # Player was found guilty
             print("The town has found {} \033[31mGUILTY\033[0m of the accusations made against them.".format(local_day_player.name))
             guiltyVerdict.play()
-            # TODO: Add execution sounds and methods
+            # TODO: Add execution methods
             sleep(2)
+            last_word_countdown = 8
+            while last_word_countdown >= 0:
+                os.system('cls')
+                print("If you have any last words {0}, you may speak them now".format(local_day_player.name))
+                print("Time remaining: {} seconds".format(last_word_countdown))
+                sleep(1)
+                last_word_countdown -= 1
+            hangedSound.play()
             print("{} has been \033[31mHANGED\033[0m.".format(local_day_player.name))
             local_day_player.living = False
             permaDeathList.append(local_day_player)
@@ -1055,6 +1063,8 @@ dayPlayer = pyglet.media.Player()
 # Create lists of the music and ambient sounds to be played
 musicList = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nightSequence5, nightSequence6]
 soundsList = [nightSounds1, rainSounds1]
+random.shuffle(musicList)
+random.shuffle(soundsList)
 
 # Begin the day/night cycle
 while True:

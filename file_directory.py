@@ -20,6 +20,7 @@ votedInnocent = pyglet.resource.media("sounds/misc/votedInnocent.mp3", streaming
 voteSound = pyglet.resource.media("sounds/misc/voteSound.mp3", streaming=False)
 voteComplete = pyglet.resource.media("sounds/misc/voteComplete.mp3", streaming=False)
 dayEnd = pyglet.resource.media("sounds/misc/dayEnd.mp3", streaming=False)
+hangedSound = pyglet.resource.media("sounds/misc/hangedSound.mp3", streaming=False)
 
 # Death sounds
 arsonKill1 = pyglet.resource.media("sounds/deathSounds/arsonKill1.mp3", streaming=False)
