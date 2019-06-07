@@ -423,6 +423,15 @@ def day_sequence(day_number):
     countdown_timer = 25
     start_time = perf_counter()
     new_time_difference = perf_counter()
+    # Clear the previous queue and initialize a new one
+    dayPlayer.next_source()
+    dayPlayer.next_source()
+    dayPlayer.next_source()
+    dayPlayer.next_source()
+    dayPlayer.queue(dayMusicList[0])
+    dayPlayer.queue(dayMusicList[0])
+    dayPlayer.queue(dayMusicList[0])
+    dayPlayer.play()
     while countdown_timer >= 0:
         if not keyboardController:
             # Countdown timer is used differently here than it was in keyboard version (sorry patience ran out)
@@ -519,6 +528,7 @@ def day_sequence(day_number):
         chatSound.play()
         if vote_number == 2:
             print("There is still time to prosecute one more person...")
+            dayPlayer.play()
             if len(local_remaining_players) < 4:
                 trialPlayer.next_source()
                 trialPlayer.next_source()
@@ -547,6 +557,7 @@ def day_sequence(day_number):
         print("The town has selected to place {} on trial. Their defense will now begin.".format(local_day_player.name))
         sleep(3)
         countdown_timer = 2
+        dayPlayer.pause()
         trialPlayer.play()
         while countdown_timer >= 0:
             os.system('cls')
@@ -1062,6 +1073,7 @@ dayPlayer = pyglet.media.Player()
 
 # Create lists of the music and ambient sounds to be played
 musicList = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nightSequence5, nightSequence6]
+dayMusicList = [day1, day2]
 soundsList = [nightSounds1, rainSounds1]
 random.shuffle(musicList)
 random.shuffle(soundsList)
@@ -1072,12 +1084,26 @@ while True:
     victoryCondition = check_victory_conditions()
     if victoryCondition is not None:
         break
+    random.shuffle(dayMusicList)
     dayNumber = day_sequence(dayNumber)
     victoryCondition = check_victory_conditions()
     if victoryCondition is not None:
         break
 
+victoryAnnounce.play()
+print("We have come to a conclusion...")
+sleep(6.8)
 print("VICTORY FOR {}".format(victoryCondition))
+sleep(2)
+winnerList = []
+for players in playerList:
+    if players.role.alignment == victoryCondition:
+        winnerList.append(players)
+print("Congratulations to:")
+for players in winnerList:
+    woosh3.play()
+    print("{0} for winning as {1}.".format(players.name, players.role.name))
+    sleep(.2)
 
 # Prevent the screen from closing
 input()

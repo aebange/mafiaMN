@@ -54,5 +54,7 @@ nightSequence3 = pyglet.resource.media("sounds/music/nightSequence3.mp3", stream
 nightSequence4 = pyglet.resource.media("sounds/music/nightSequence4.mp3", streaming=False)
 nightSequence5 = pyglet.resource.media("sounds/music/nightSequence5.mp3", streaming=False)
 nightSequence6 = pyglet.resource.media("sounds/music/nightSequence6.mp3", streaming=False)
+day1 = pyglet.resource.media("sounds/music/day1.mp3", streaming=False)
+day2 = pyglet.resource.media("sounds/music/day2.mp3", streaming=False)
 nightSounds1 = pyglet.resource.media("sounds/misc/nightSounds1.mp3", streaming=False)
 rainSounds1 = pyglet.resource.media("sounds/misc/rainSounds1.mp3", streaming=False)
