@@ -32,6 +32,7 @@ serialKillerCorpseDescriptorList = ["Knife cuts were found all over their body, 
                                     "The victims limbs were almost severed from their body by deep knife cuts into their skin."
                                     ]
 
+# TODO: Fix the color formatting on event notifiers, they're horrible right now
 
 # UNRELATED TO ABILITIES
 def play_kill_sound(player):
@@ -131,7 +132,7 @@ def murder_ability(player):
     for immunity in player.target.role.immunities:
         if immunity == "Night Immune":
             # This person could not be killed this way
-            player.info.append("\033[45mYour target is night immune tonight, and cannot be killed this way!\033[49m")
+            player.info.append(player.target.name + " \033[45m" + " is night immune tonight, and cannot be killed this way!\033[49m")
             return
     # This target was guarded and now both you and one of the guards will die
     if "Guarded" in player.target.status.keys():
@@ -149,12 +150,12 @@ def murder_ability(player):
             deathList.append(selected_bodyguard)
             player.living = False
             deathList.append(player)
-            selected_bodyguard.info.append("\033[41mYour target was attacked last night! You and the assailant were both slain in the shootout!\033[49m")
-            player.info.append("\033[41mYour target was protected by a bodyguard! You and the bodyguard were both slain in the shootout!\033[49m")
+            selected_bodyguard.info.append(player.target.name + " \033[41m"+ "was attacked last night! You and the assailant were both slain in the shootout!\033[49m")
+            player.info.append(player.target.name + " \033[41m" + "was protected by a bodyguard! You and the bodyguard were both slain in the shootout!\033[49m")
             bodyguard_list.remove(selected_bodyguard)
             # Notify remaining bodyguards that their target was protected by someone else
             for item in bodyguard_list:
-                item.info.append("\033[42mYour target was attacked last night, however someone else moved to engage the killer before you could!\033[49m")
+                item.info.append(player.target.name + " \033[42m" + "was attacked last night, however someone else moved to engage the killer before you could!\033[49m")
         else:
             selected_bodyguard = bodyguard_list[0]
             # There is only one bodyguard protecting the target
@@ -167,8 +168,8 @@ def murder_ability(player):
             deathList.append(player)
             # No bodyguards are protecting this target anymore, remove status
             del player.target.status["Guarded"]
-            selected_bodyguard.info.append("\033[41mYour target was attacked last night! You and the assailant were both slain in the shootout!\033[49m")
-            player.info.append("\033[41mYour target was protected by a bodyguard! You and the bodyguard were both slain in the shootout!\033[49m")
+            selected_bodyguard.info.append(player.target.name + " \033[41m" + "was attacked last night! You and the assailant were both slain in the shootout!\033[49m")
+            player.info.append(player.target.name + " \033[41m" +"was protected by a bodyguard! You and the bodyguard were both slain in the shootout!\033[49m")
     elif "Vested" in player.target.status.keys():
         # The target was wearing a bulletproof vest that protected them from harm
         player.target.info.append("\033[42mSomeone shot you on your porch last night, however your bulletproof vest miraculously absorbed all the damage!\033[49m")
@@ -176,7 +177,7 @@ def murder_ability(player):
         return
     elif not player.target.living:
         # The target is already dead
-        player.info.append("\033[45mYou found your target's corpse alone in their home, they were already killed before you arrived!\033[49m")
+        player.info.append("\033[45mYou found " + player.target.name + "'s corpse alone in their home, they were already killed before you arrived!\033[49m")
         return
     else:
         # The target wasn't protected or immune and is now dead unless healed
@@ -202,18 +203,18 @@ def heal_ability(player):
     for immunity in player.target.role.immunities:
         if immunity == "Heal Immune":
             # This person cannot be healed
-            player.info.append("\033[45mYour target is heal immune tonight, and couldn't be healed even if they were attacked.\033[49m")
+            player.info.append(player.target.name + "\033[45m" +" is heal immune tonight, and couldn't be healed even if they were attacked.\033[49m")
             return
         if player.target.living:
             # The healer's target was not harmed enough to require healing.
-            player.info.append("\033[42mYour target did not require healing last night.\033[49m")
+            player.info.append(player.target.name + "\033[42m" + " did not require healing last night.\033[49m")
             return
         else:
             # The healer's target is currently dead.
             player.target.living = True
             deathList.remove(player.target)
             player.target.info.append("\033[42mYou were brutally attacked and left for dead, but a stranger arrived and nursed you back to health.\033[49m")
-            player.info.append("\033[42mYour target was brutally attacked last night. You were able to anonymously nurse them back to health.\033[49m")
+            player.info.append(player.target.name + "\033[42m" +" was brutally attacked last night. You were able to anonymously nurse them back to health.\033[49m")
     # The action was completed without issue
 
 
@@ -226,20 +227,20 @@ def check_affiliation_ability(player):
     for immunity in player.target.role.immunities:
         if immunity == "Detect Immune":
             # This person cannot be detected this way
-            player.info.append("\033[42mYour target tonight is not suspicious.\033[49m")
+            player.info.append(player.target.name + " \033[42m" +"is not suspicious.\033[49m")
             return
     if player.target.role.alignment == "Town":
-        player.info.append("\033[42mYour target tonight is not suspicious.\033[49m")
+        player.info.append(player.target.name + " \033[42m" +"is not suspicious.\033[49m")
     else:
         # #!Change this once mafia and other neut roles are defined
-        player.info.append("\033[41mYour target tonight is not a member of the town!\033[49m")
+        player.info.append(player.target.name + " \033[41m" + "is not a member of the town!\033[49m")
 
 
 def watch_ability(player):
     # IMMUNITY DEPENDENCIES: None
     # STATUS DEPENDENCIES: None
     # TRAIT DEPENDENCIES: None
-    tonights_visitors = "\033[45mYour target tonight was visited by "
+    tonights_visitors = player.target.name + " \033[45m" + "was visited tonight by "
     number_of_visitors = len(player.target.visitors)
     if number_of_visitors == 1:
         for visitor in player.target.visitors:
@@ -256,18 +257,18 @@ def watch_ability(player):
                 player.info.append(tonights_visitors)
         player.target.visitors.append(player)
     else:
-        tonights_visitors = (tonights_visitors + " nobody.\033[49m")
+        tonights_visitors = (tonights_visitors + "nobody.\033[49m")
         player.info.append(tonights_visitors)
         player.target.visitors.append(player)
 
 
 # Build a dictionary of which (string based) abilities in role class attributes correspond with with functions
 dispatch = {
-    "Guard": guard_ability,
-    "Bulletproof Vest": bulletproof_vest_ability,
-    "Role-block": role_block_ability,
-    "Murder": murder_ability,
-    "Heal": heal_ability,
-    "Check Affiliation": check_affiliation_ability,
-    "Watch": watch_ability
-}
+            "Guard": guard_ability,
+            "Bulletproof Vest": bulletproof_vest_ability,
+            "Role-block": role_block_ability,
+            "Murder": murder_ability,
+            "Heal": heal_ability,
+            "Check Affiliation": check_affiliation_ability,
+            "Watch": watch_ability
+            }

@@ -110,8 +110,46 @@ serial_killer = Role(
     "The serial killer can choose to murder one person each night. You are night-immune and can only die by suicide or hanging during the day. Try to target roles who will lead the town to discovering you first.",
     1)  # Role Priority
 
+# Define Mafia Roles
+godfather = Role(
+    "Godfather",
+    "Mafia",
+    ["Mafia Killing"],
+    "Murder",
+    666,
+    ["Detect Immune", "Night Immune"],
+    ["Kills Role Blockers"],
+    "the leader of the town's organized mafia syndicate.",
+    "The Godfather may vote on who he should go kill each night. Unlike other mafia roles whose votes count for one, his vote counts for three. The Godfather should try to lead his companions to victory by directing their actions.",
+    1)  # Role Priority
+
+agent = Role(
+    "Agent",
+    "Mafia",
+    ["Mafia Support"],
+    "Watch",
+    666,
+    ["None"],
+    ["Self-Target", "Ignore Detection Immunity"],
+    "one of the many Caporegime the GodFather employs, this shady individual gathers information for the Mafia.",
+    "The objective of the Agent is to help the mafia identify key enemy players by watching a person each night to see who visits them. The Agent may vote on who he believes should be killed each night by the Godfather.",
+    3)  # Role Priority
+
+consort = Role(
+    "Consort",
+    "Mafia",
+    ["Mafia Support"],
+    "Role-block",
+    666,
+    ["None"],
+    ["None"],
+    "a street working dancer serving the orders of organized crime.",
+    "The consort can visit one person's house each night, role-blocking them for the evening. The consort may vote on who he believes should be killed each night by the Godfather.",
+    0)  # Role Priority
+
 # Included roles
 ##townRolesList = [citizen, bodyguard, lookout, escort, doctor, sheriff, mayor, vigilante]
-townRolesList = [vigilante, vigilante, vigilante, vigilante, vigilante, vigilante, vigilante]
+townRolesList = [vigilante, vigilante, vigilante, vigilante]
 neutralRolesList = [serial_killer]
-mafiaRolesList = []
+##mafiaRolesList = [godfather, godfather, godfather]
+mafiaRolesList = [godfather, agent, consort]

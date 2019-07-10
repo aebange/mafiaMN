@@ -172,6 +172,7 @@ def night_sequence(night_number):
         begin_turn_instruction = ", \033[91mpress A to begin your turn please.\033[0m"
         skip_turn_instruction = " Press A to skip them."
         learn_event_instruction = "press A to learn what happened tonight."
+    mafia_kill_vote = {}
     for player in playerList:
         if player.living:
             # Prompt the user to begin their turn
@@ -187,8 +188,13 @@ def night_sequence(night_number):
             print(" ")
             print(player.role.hint)
             print(" ")
+            # Print how many more uses of a night ability the player has (if any)
             if player.uses != 666:
                 print(Fore.LIGHTRED_EX + "Remaining night ability uses: {}".format(player.uses) + Fore.RESET)
+            # Print a list of players in the users team (if any)
+            if player in teamDict["Mafia"]:
+                if player.role.alignment == "Mafia":
+                    print_remaining_players("MAFIA")
             if player.role.name == "Serial Killer":
                 print(Fore.LIGHTRED_EX + "Select one person to attempt to kill tonight by selecting their name:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
@@ -206,6 +212,109 @@ def night_sequence(night_number):
                     player.target = get_player_target(serial_killer_target)
                     press_enter_key()
                     os.system('cls')
+            elif player.role.name == "Godfather":
+                # The godfather has taken his turn
+                local_godfather_played_turn = True
+                # How much the role's vote is worth
+                mafia_vote_value = 2
+                print(Fore.LIGHTRED_EX + "Vote on one person for the mafia to hit tonight by selecting their name:" + Fore.RESET)
+                print("-" * SCREEN_WIDTH)
+                print_remaining_players()
+                # Check to make sure the input is actually a number
+                godfather_target = get_user_night_action_input(player)
+                if godfather_target == "S":
+                    # TODO: Clean up these "Press Enter/A" statements, they are extremely inefficient and sloppy
+                    print("You will stay inside with your pet cat 'Clumpy' tonight, " + Fore.LIGHTRED_EX + end_turn_instruction + Fore.RESET)
+                    press_enter_key()
+                    os.system('cls')
+                    godfather_vote_target = None
+                else:
+                    print("You voted to kill {0} tonight, ".format(playerList[godfather_target].name) + Fore.LIGHTRED_EX + end_turn_instruction + Fore.RESET)
+                    # Convert the target (int) to a player object
+                    godfather_vote_target = get_player_target(godfather_target)
+                    # Nobody in the mafia has voted yet
+                    if bool(mafia_kill_vote) is False:
+                        mafia_kill_vote.update({godfather_vote_target : mafia_vote_value})
+                    else:
+                        # Someone else has already voted to kill this person
+                        if godfather_vote_target in mafia_kill_vote:
+                            local_vote_value = mafia_kill_vote[godfather_vote_target]
+                            # Add the godfathers vote value to the previous vote value
+                            local_vote_value += mafia_vote_value
+                            # Update the votes towards the target in the dictionary
+                            mafia_kill_vote.update({godfather_vote_target : local_vote_value})
+                    press_enter_key()
+                    os.system('cls')
+            elif player.role.name == "Consort":
+                mafia_vote_value = 1
+                print(" ")
+                print(Fore.LIGHTRED_EX + "Select one person to attempt to distract tonight by selecting their name:" + Fore.RESET)
+                print("-" * SCREEN_WIDTH)
+                print_remaining_players()
+                # Check to make sure the input is actually a number
+                consort_target = get_user_night_action_input(player)
+                if consort_target == "S":
+                    local_decision_notifier = ("You will stay inside with your pet cat 'Bubble' tonight, " + Fore.LIGHTRED_EX + end_turn_instruction + Fore.RESET)
+                    player.target = None
+                else:
+                    local_decision_notifier = ("You went to distract {0} tonight, ".format(playerList[consort_target].name) + Fore.LIGHTRED_EX + end_turn_instruction + Fore.RESET)
+                    player.target = get_player_target(consort_target)
+                os.system('cls')
+                print(local_decision_notifier)
+                print(Fore.LIGHTRED_EX + "Vote on one person for the mafia to hit tonight by selecting their name:" + Fore.RESET)
+                print("-" * SCREEN_WIDTH)
+                print_remaining_players()
+                # Check to make sure the input is actually a number
+                consort_vote_target = get_user_night_action_input(player)
+                consort_vote_target = get_player_target(consort_vote_target)
+                # Nobody in the mafia has voted yet
+                if bool(mafia_kill_vote) is False:
+                    mafia_kill_vote.update({consort_vote_target: mafia_vote_value})
+                else:
+                    # Someone else has already voted to kill this person
+                    if consort_vote_target in mafia_kill_vote:
+                        local_vote_value = mafia_kill_vote[consort_vote_target]
+                        # Add the godfathers vote value to the previous vote value
+                        local_vote_value += mafia_vote_value
+                        # Update the votes towards the target in the dictionary
+                        mafia_kill_vote.update({consort_vote_target: local_vote_value})
+                press_enter_key()
+                os.system('cls')
+            elif player.role.name == "Agent":
+                mafia_vote_value = 1
+                print(" ")
+                print(Fore.LIGHTRED_EX + "Select one person to attempt to watch tonight by selecting their name:" + Fore.RESET)
+                print("-" * SCREEN_WIDTH)
+                print_remaining_players()
+                # Check to make sure the input is actually a number
+                agent_target = get_user_night_action_input(player)
+                if agent_target == "S":
+                    local_decision_notifier = ("You will stay inside with your pet cat 'Lana' tonight, " + Fore.LIGHTRED_EX + end_turn_instruction + Fore.RESET)
+                    player.target = None
+                else:
+                    local_decision_notifier= ("You went to watch {0} tonight, ".format(playerList[agent_target].name) + Fore.LIGHTRED_EX + end_turn_instruction + Fore.RESET)
+                    player.target = get_player_target(agent_target)
+                os.system('cls')
+                print(local_decision_notifier)
+                print(Fore.LIGHTRED_EX + "Vote on one person for the mafia to hit tonight by selecting their name:" + Fore.RESET)
+                print("-" * SCREEN_WIDTH)
+                print_remaining_players()
+                # Check to make sure the input is actually a number
+                agent_vote_target = get_user_night_action_input(player)
+                agent_vote_target = get_player_target(agent_vote_target)
+                # Nobody in the mafia has voted yet
+                if bool(mafia_kill_vote) is False:
+                    mafia_kill_vote.update({agent_vote_target: mafia_vote_value})
+                else:
+                    # Someone else has already voted to kill this person
+                    if agent_vote_target in mafia_kill_vote:
+                        local_vote_value = mafia_kill_vote[agent_vote_target]
+                        # Add the godfathers vote value to the previous vote value
+                        local_vote_value += mafia_vote_value
+                        # Update the votes towards the target in the dictionary
+                        mafia_kill_vote.update({agent_vote_target: local_vote_value})
+                press_enter_key()
+                os.system('cls')
             elif player.role.name == "Citizen":
                 # TODO: Add functionality to this, he cannot use his vest yet.
                 print(" ")
@@ -310,8 +419,7 @@ def night_sequence(night_number):
                     os.system('cls')
             elif player.role.name == "Doctor":
                 print(" ")
-                print(
-                    Fore.LIGHTRED_EX + "Select one person to attempt to heal tonight by selecting their name:" + Fore.RESET)
+                print(Fore.LIGHTRED_EX + "Select one person to attempt to heal tonight by selecting their name:" + Fore.RESET)
                 print("-" * SCREEN_WIDTH)
                 print_remaining_players()
                 # Check to make sure the input is actually a number
@@ -327,8 +435,12 @@ def night_sequence(night_number):
                     press_enter_key()
                     os.system('cls')
         else:
-            # TODO: Add shit for dead people to do.
+            # TODO: Add stuff for dead people to do.
             pass
+    for player in playerList:
+        if player.role.name == "Godfather":
+            # Set the Godfather target to the user with the most votes
+            player.target = max(mafia_kill_vote, key=mafia_kill_vote.get)
     # Player night_ability execution, create randomized form of player list to make things fair
     randomized_player_list = playerList.copy()
     random.shuffle(randomized_player_list)
@@ -417,17 +529,14 @@ def day_sequence(day_number):
         # TODO: Color the role name here
         roleReveal.play()
         sleep(1)
-        print("Their role was " + (player.role.role_color()) + "{0}\033[0m".format(player.role.name))
+        print("Their role was " + (player.role.role_color()) + "{0}\033[0m".format(player.role.name) + ".")
         sleep(2.5)
     sleep(3)
     countdown_timer = 25
     start_time = perf_counter()
     new_time_difference = perf_counter()
     # Clear the previous queue and initialize a new one
-    dayPlayer.next_source()
-    dayPlayer.next_source()
-    dayPlayer.next_source()
-    dayPlayer.next_source()
+    clear_playlist(dayPlayer)
     dayPlayer.queue(dayMusicList[0])
     dayPlayer.queue(dayMusicList[0])
     dayPlayer.queue(dayMusicList[0])
@@ -514,14 +623,10 @@ def day_sequence(day_number):
             new_time_difference = time_difference
     vote_number = 1
     if len(local_remaining_players) < 4:
-        trialPlayer.next_source()
-        trialPlayer.next_source()
-        trialPlayer.next_source()
+        clear_playlist(trialPlayer)
         trialPlayer.queue(questioningMusicINTENSE)
     else:
-        trialPlayer.next_source()
-        trialPlayer.next_source()
-        trialPlayer.next_source()
+        clear_playlist(trialPlayer)
         trialPlayer.queue(questioningMusic)
     while vote_number <= 2:
         os.system('cls')
@@ -530,14 +635,10 @@ def day_sequence(day_number):
             print("There is still time to prosecute one more person...")
             dayPlayer.play()
             if len(local_remaining_players) < 4:
-                trialPlayer.next_source()
-                trialPlayer.next_source()
-                trialPlayer.next_source()
+                clear_playlist(trialPlayer)
                 trialPlayer.queue(questioningMusicINTENSE)
             else:
-                trialPlayer.next_source()
-                trialPlayer.next_source()
-                trialPlayer.next_source()
+                clear_playlist(trialPlayer)
                 trialPlayer.queue(questioningMusic)
         print("Who has the town selected to put on trial?")
         print("-" * SCREEN_WIDTH)
@@ -640,6 +741,7 @@ def day_sequence(day_number):
 def check_victory_conditions():
     victory_condition = None
     serial_killer_alive = False
+    mafia_alive = False
     # Step 1. Check to see how many players are left
     remaining_players = []
     for local_overall_player in playerList:
@@ -652,6 +754,7 @@ def check_victory_conditions():
             if len(remaining_players) <= 2:
                 victory_condition = "Serial Killer"
                 return victory_condition
+        elif local_remaining_player.role.affiliation ==
     if not serial_killer_alive:
         victory_condition = "Town"
         return victory_condition
@@ -670,6 +773,16 @@ townProtectiveRoles = []
 townInvestigativeRoles = []
 townKillingRoles = []
 neutralKillingRoles = []
+mafiaKillingRoles = []
+mafiaSupportRoles = []
+
+# Clears the playlist queue
+def clear_playlist(audio_player):
+    # How many items in the queue the function will skip, can be infinite
+    local_skips = 10
+    while local_skips != 0:
+        audio_player.next_source()
+        local_skips -= 1
 
 
 # Gradually decreases the volume level of a selected track
@@ -701,12 +814,29 @@ priority3Roles = []
 def end_day():
     os.system('cls')
     dayEnd.play()
+    trialPlayer.pause()
     print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
     sleep(3)
     goodNightBell.play()
     print("\033[91mPlease close your eyes\033[0m so the night may begin.")
     sleep(3)
     os.system('cls')
+
+
+# Build a dictionary containing keys with corresponding lists of all the players in each respective team
+def generate_teams_dict():
+    local_mafia_team_list = []
+    local_town_team_list = []
+    for local_player in playerList:
+        if local_player.role.alignment == "Mafia":
+            local_mafia_team_list.append(local_player)
+        if local_player.role.alignment == "Town":
+            local_town_team_list.append(local_player)
+    local_team_list_dictionary = {
+                                  "Mafia": local_mafia_team_list,
+                                  "Town": local_town_team_list,
+                                  }
+    return local_team_list_dictionary
 
 # Build a list of all objects based on attributes
 def generate_priority_list():
@@ -865,9 +995,9 @@ def user_day_input(local_options):
 def user_role_distribution(players, roles):
     i = 0
     shuffled_roles = random.sample(roles, len(roles))
-    for player in players:
-        player.role = shuffled_roles[i]
-        player.uses = shuffled_roles[i].uses
+    for local_player in players:
+        local_player.role = shuffled_roles[i]
+        local_player.uses = shuffled_roles[i].uses
         i += 1
 
 
@@ -875,13 +1005,22 @@ def user_role_distribution(players, roles):
 def print_remaining_players(local_type="Night"):
     if local_type.upper() == "DAY":
         print("[S] \033[95mSKIP THE DAY AND DO NOTHING\033[0m")
+    elif local_type.upper() == "MAFIA":
+        print("MAFIA TEAM MEMBERS:")
     else:
         print("[S] \033[95mSKIP THE NIGHT AND DO NOTHING\033[0m")
-    for player in playerList:
-        if player.living:
-            print("[{0}] \033[94m{1}\033[0m".format(player.number, player.name))
-        else:
-            print("[X] \033[31m{0}\033[0m".format(player.raw_name))
+    if local_type.upper() == "MAFIA":
+        for local_player in teamDict["Mafia"]:
+            if local_player.living:
+                print("[{0}] \033[94m{1}\033[0m, \033[31m{2}\033[0m".format(local_player.number, local_player.name, local_player.role.name))
+            else:
+                print("[X] \033[31m{0}\033[0m, \033[31m{1}\033[0m".format(local_player.raw_name, local_player.role.name))
+    else:
+        for local_player in playerList:
+            if local_player.living:
+                print("[{0}] \033[94m{1}\033[0m".format(local_player.number, local_player.name))
+            else:
+                print("[X] \033[31m{0}\033[0m".format(local_player.raw_name, local_player.role.name))
     print("-" * SCREEN_WIDTH)
     print(" ")
 
@@ -946,6 +1085,10 @@ def generate_type_list():
                     townKillingRoles.append(obj)
                 elif item == "Neutral Killing":
                     neutralKillingRoles.append(obj)
+                elif item == "Mafia Killing":
+                    mafiaKillingRoles.append(obj)
+                elif item == "Mafia Support":
+                    mafiaSupportRoles.append(obj)
                 else:
                     print("ERROR: INVALID self.type (Role) PRESENTED TO generate_type_list FUNCTION!")
 
@@ -964,16 +1107,37 @@ def get_user_night_action_input(local_player):
         # Check to see if user prompted to skip
         if local_target == "S":
             return local_target.upper()
+        # The player number is valid (not a necessary check anymore, but why not keep it)
         if int(local_target) < len(playerList) and int(local_target) >= 0:
+            # Adjust the local target to make sure its an integer object
             local_target = int(local_target)
+            # The player is dead and cannot be targeted
             if not playerList[local_target].living:
                 print("That person is dead," + Fore.LIGHTRED_EX + " choose another please." + Fore.RESET)
             else:
+                # Create a player object version of the player target (still just an int at this point)
+                local_target_player = get_player_target(local_target)
+                # The player targeted themselves
                 if local_target == local_player.number:
                     for trait in local_player.role.traits:
                         if trait == "Self-Target":
                             return local_target
                     print("You cannot target yourself," + Fore.LIGHTRED_EX + " choose another person please." + Fore.RESET)
+                # The target is a member of the mafia
+                elif local_target_player in teamDict["Mafia"]:
+                    # The player is a member of the mafia
+                    if local_player in teamDict["Mafia"]:
+                        # The player has self-target
+                        for trait in local_player.role.traits:
+                            if trait == "Self-Target":
+                                # Target the mafia teammate
+                                return local_target
+                        # The player doesn't have self-target
+                        print("You cannot target teammates," + Fore.LIGHTRED_EX + " choose another person please." + Fore.RESET)
+                    # The player is not a member of the mafia
+                    else:
+                        # There's nothing wrong with this person
+                        return local_target
                 else:
                     # There's nothing wrong with this person
                     return local_target
@@ -1058,6 +1222,8 @@ playerList = user_identification()
 
 # Distribute roles to the players
 user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRolesList))
+
+teamDict = generate_teams_dict()
 
 # Start the game
 # startup()

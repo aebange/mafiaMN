@@ -93,8 +93,8 @@ class Role:
             self.color = Fore.WHITE
             self.back = Fore.GREEN
         elif self.alignment == "Mafia":
-            self.color = Fore.RED
-            self.back = Fore.BLACK
+            self.color = Fore.BLACK
+            self.back = Fore.RED
         elif self.alignment == "Serial Killer":
             self.color = Fore.WHITE
             self.back = Back.MAGENTA
