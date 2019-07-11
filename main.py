@@ -222,29 +222,25 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 godfather_target = get_user_night_action_input(player)
+                # Convert the target (int) to a player object
                 if godfather_target == "S":
-                    # TODO: Clean up these "Press Enter/A" statements, they are extremely inefficient and sloppy
-                    print("You will stay inside with your pet cat 'Clumpy' tonight, " + Fore.LIGHTRED_EX + end_turn_instruction + Fore.RESET)
-                    press_enter_key()
-                    os.system('cls')
-                    godfather_vote_target = None
+                    print("You voted to skip the night tonight.                            ")
                 else:
                     print("You voted to kill {0} tonight, ".format(playerList[godfather_target].name) + Fore.LIGHTRED_EX + end_turn_instruction + Fore.RESET)
-                    # Convert the target (int) to a player object
-                    godfather_vote_target = get_player_target(godfather_target)
-                    # Nobody in the mafia has voted yet
-                    if bool(mafia_kill_vote) is False:
-                        mafia_kill_vote.update({godfather_vote_target : mafia_vote_value})
-                    else:
-                        # Someone else has already voted to kill this person
-                        if godfather_vote_target in mafia_kill_vote:
-                            local_vote_value = mafia_kill_vote[godfather_vote_target]
-                            # Add the godfathers vote value to the previous vote value
-                            local_vote_value += mafia_vote_value
-                            # Update the votes towards the target in the dictionary
-                            mafia_kill_vote.update({godfather_vote_target : local_vote_value})
-                    press_enter_key()
-                    os.system('cls')
+                godfather_vote_target = get_player_target(godfather_target)
+                # Nobody in the mafia has voted yet
+                if bool(mafia_kill_vote) is False:
+                    mafia_kill_vote.update({godfather_vote_target : mafia_vote_value})
+                else:
+                    # Someone else has already voted to kill this person
+                    if godfather_vote_target in mafia_kill_vote:
+                        local_vote_value = mafia_kill_vote[godfather_vote_target]
+                        # Add the godfathers vote value to the previous vote value
+                        local_vote_value += mafia_vote_value
+                        # Update the votes towards the target in the dictionary
+                        mafia_kill_vote.update({godfather_vote_target : local_vote_value})
+                press_enter_key()
+                os.system('cls')
             elif player.role.name == "Consort":
                 mafia_vote_value = 1
                 print(" ")
@@ -266,6 +262,10 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 consort_vote_target = get_user_night_action_input(player)
+                if consort_vote_target == "S":
+                    print("You voted to skip the night tonight.                            ")
+                else:
+                    print("You voted to kill {0} tonight, ".format(playerList[consort_vote_target].name) + Fore.LIGHTRED_EX + end_turn_instruction + Fore.RESET)
                 consort_vote_target = get_player_target(consort_vote_target)
                 # Nobody in the mafia has voted yet
                 if bool(mafia_kill_vote) is False:
@@ -301,6 +301,10 @@ def night_sequence(night_number):
                 print_remaining_players()
                 # Check to make sure the input is actually a number
                 agent_vote_target = get_user_night_action_input(player)
+                if agent_vote_target == "S":
+                    print("You voted to skip the night tonight.                            ")
+                else:
+                    print("You voted to kill {0} tonight, ".format(playerList[agent_vote_target].name) + Fore.LIGHTRED_EX + end_turn_instruction + Fore.RESET)
                 agent_vote_target = get_player_target(agent_vote_target)
                 # Nobody in the mafia has voted yet
                 if bool(mafia_kill_vote) is False:
@@ -740,24 +744,36 @@ def day_sequence(day_number):
 # Checks to see if the victory conditions have been met
 def check_victory_conditions():
     victory_condition = None
-    serial_killer_alive = False
-    mafia_alive = False
     # Step 1. Check to see how many players are left
     remaining_players = []
+    remaining_mafia = []
+    remaining_town = []
+    remaining_sk = []
     for local_overall_player in playerList:
         if local_overall_player.living:
             remaining_players.append(local_overall_player)
-    # Step 2. Check to see if Serial Killer Won
+    # Step 2. Identify the remaining player's affiliations
     for local_remaining_player in remaining_players:
-        if local_remaining_player.role.name == "Serial Killer":
-            serial_killer_alive = True
-            if len(remaining_players) <= 2:
-                victory_condition = "Serial Killer"
-                return victory_condition
-        elif local_remaining_player.role.affiliation ==
-    if not serial_killer_alive:
+        if local_remaining_player.role.alignment == "Serial Killer":
+            remaining_sk.append(local_remaining_player)
+        elif local_remaining_player.role.alignment == "Mafia":
+            remaining_mafia.append(local_remaining_player)
+        else:
+            remaining_town.append(local_remaining_player)
+    # Step 3. Figure out who has won (if anyone)
+    # The SK and Mafia are all dead, Town wins
+    if remaining_town and not remaining_sk and not remaining_mafia:
         victory_condition = "Town"
         return victory_condition
+    # The SK is dead but the Mafia is still alive and holds majority, Mafia wins
+    elif not remaining_sk and len(remaining_town) < len(remaining_mafia):
+        victory_condition = "Mafia"
+        return victory_condition
+    # The Mafia are all dead and the SK holds majority, SK wins
+    elif not remaining_mafia and len(remaining_town) <= len(remaining_sk):
+        victory_condition = "Serial Killer"
+        return victory_condition
+    # The game is still going on, nobody wins yet
     else:
         return victory_condition
 
@@ -1020,7 +1036,7 @@ def print_remaining_players(local_type="Night"):
             if local_player.living:
                 print("[{0}] \033[94m{1}\033[0m".format(local_player.number, local_player.name))
             else:
-                print("[X] \033[31m{0}\033[0m".format(local_player.raw_name, local_player.role.name))
+                print("[X] \033[31m{0}\033[0m, {1}".format(local_player.raw_name, (local_player.role.role_color()) + str(local_player.role.name) + Back.RESET + Fore.RESET))
     print("-" * SCREEN_WIDTH)
     print(" ")
 
@@ -1030,6 +1046,8 @@ def print_remaining_players(local_type="Night"):
 def get_player_target(target_number):
     # Generate the living player list
     local_living_player_list = []
+    if target_number == "S":
+        return None
     for local_player in playerList:
         if local_player.living:
             local_living_player_list.append(local_player)
@@ -1258,18 +1276,32 @@ while True:
 
 victoryAnnounce.play()
 print("We have come to a conclusion...")
+print(" ")
 sleep(6.8)
-print("VICTORY FOR {}".format(victoryCondition))
+if victoryCondition == "Mafia":
+    endingMusicMafia.play()
+    print("VICTORY FOR THE \033[31m{}\033[0m".format(victoryCondition.upper()))
+elif victoryCondition == "Town":
+    endingMusicTown.play()
+    print("VICTORY FOR THE \033[32m{}\033[0m".format(victoryCondition.upper()))
+elif victoryCondition == "Serial Killer":
+    endingMusicSerialKiller.play()
+    print("VICTORY FOR THE \033[45m{}\033[0m".format(victoryCondition.upper()))
+else:
+    print("ERROR: INVALID VICTORY CONDITION")
 sleep(2)
 winnerList = []
 for players in playerList:
     if players.role.alignment == victoryCondition:
         winnerList.append(players)
+sleep(1)
+print(" ")
 print("Congratulations to:")
-for players in winnerList:
+for local_players in winnerList:
     woosh3.play()
-    print("{0} for winning as {1}.".format(players.name, players.role.name))
-    sleep(.2)
+    print("{0} for winning as {1}".format(local_players.name, (local_players.role.role_color()) + str(local_players.role.name) + Back.RESET + Fore.RESET + "."))
+    print(" ")
+    sleep(.5)
 
 # Prevent the screen from closing
 input()

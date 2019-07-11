@@ -3,7 +3,7 @@ from classes import Role
 # Define Town Roles
 citizen = Role(
     "Citizen",  # Name (What the role is called)
-    "Town",  # Affiliation (How the role wins)
+    "Town",  # Alignment (How the role wins)
     ["Town Government"],  # Type (What the role does)
     "None",  # Abilities (What the role can do at night) TODO: Change this back to bulletproof vest
     3,  # Uses (How many times the ability can be used)
