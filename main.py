@@ -159,6 +159,7 @@ def night_sequence(night_number):
     nightPlayer.play()
     deathList.clear()
     nightAmbientPlayer.queue(random.choice(soundsList))
+    dayAmbientPlayer.pause()
     nightAmbientPlayer.play()
     if keyboardController:
         end_turn_instruction = "press ENTER to end your turn."
@@ -496,6 +497,9 @@ def night_sequence(night_number):
 
 
 def day_sequence(day_number):
+    dayAmbientPlayer.queue(daySounds)
+    nightAmbientPlayer.pause()
+    dayAmbientPlayer.play()
     day_number += 1
     os.system('cls')
     print("\033[33mDay number {0}.\033[0m".format(day_number))
@@ -831,6 +835,7 @@ def end_day():
     os.system('cls')
     dayEnd.play()
     trialPlayer.pause()
+    dayPlayer.pause()
     print("\033[33mThe hour is too late to continue, we shall reconvene tomorrow...\033[0m")
     sleep(3)
     goodNightBell.play()
@@ -1028,7 +1033,10 @@ def print_remaining_players(local_type="Night"):
     if local_type.upper() == "MAFIA":
         for local_player in teamDict["Mafia"]:
             if local_player.living:
-                print("[{0}] \033[94m{1}\033[0m, \033[31m{2}\033[0m".format(local_player.number, local_player.name, local_player.role.name))
+                if local_player.target == "NULL" or not local_player.target:
+                    print("[{0}] \033[94m{1}\033[0m, \033[31m{2}\033[0m".format(local_player.number, local_player.name, local_player.role.name))
+                else:
+                    print("[{0}] \033[94m{1}\033[0m, \033[31m{2}\033[0m - \033[4mTargeting {3}".format(local_player.number, local_player.name, local_player.role.name, local_player.target.name))
             else:
                 print("[X] \033[31m{0}\033[0m, \033[31m{1}\033[0m".format(local_player.raw_name, local_player.role.name))
     else:
@@ -1254,11 +1262,13 @@ nightPlayer = pyglet.media.Player()
 nightAmbientPlayer = pyglet.media.Player()
 trialPlayer = pyglet.media.Player()
 dayPlayer = pyglet.media.Player()
+dayAmbientPlayer = pyglet.media.Player()
 
 # Create lists of the music and ambient sounds to be played
 musicList = [nightSequence1, nightSequence2, nightSequence3, nightSequence4, nightSequence5, nightSequence6]
 dayMusicList = [day1, day2]
 soundsList = [nightSounds1, rainSounds1]
+daySoundsList = [daySounds]
 random.shuffle(musicList)
 random.shuffle(soundsList)
 

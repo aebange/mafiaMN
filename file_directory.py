@@ -61,3 +61,4 @@ rainSounds1 = pyglet.resource.media("sounds/misc/rainSounds1.mp3", streaming=Fal
 endingMusicMafia = pyglet.resource.media("sounds/music/endingMusicMafia.mp3", streaming=False)
 endingMusicSerialKiller = pyglet.resource.media("sounds/music/endingMusicSerialKiller.mp3", streaming=False)
 endingMusicTown = pyglet.resource.media("sounds/music/endingMusicTown.mp3", streaming=False)
+daySounds = pyglet.resource.media("sounds/misc/daySounds.mp3", streaming=False)
