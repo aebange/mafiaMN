@@ -33,7 +33,7 @@ lookout = Role(
     666,
     ["None"],
     ["Self-Target", "Ignore Detection Immunity"],
-    "a war veteran who secretly makes a living by selling protection.",
+    "an eagle-eyed observer, stealthily camping outside houses to gain information.",
     "The lookout can stake out at one person's house each night to see who visits them. Remember, not only evil players may be visiting other's houses.",
     3)  # Role Priority
 
@@ -76,7 +76,7 @@ sheriff = Role(
 mayor = Role(
     "Mayor",
     "Town",
-    ["Town Government", "Town Investigative"],
+    ["Town Disabled"],
     "None", # TODO: Add functionality to day reveal
     1,
     ["Heal Immune"],
@@ -161,8 +161,8 @@ consort = Role(
 
 # Included roles
 ##townRolesList = [citizen, bodyguard, lookout, escort, doctor, sheriff, mayor, vigilante]
-townRolesList = [vigilante, sheriff, doctor, bodyguard]
-neutralRolesList = [serial_killer]
+# townRolesList = [vigilante, sheriff, doctor, bodyguard]
+# neutralRolesList = [serial_killer]
 ##mafiaRolesList = [godfather, godfather, godfather]
-mafiaRolesList = [godfather, agent, consort]
+# mafiaRolesList = [godfather, agent, consort]
 scriptedMafiaRole = [mafioso, godfather]
