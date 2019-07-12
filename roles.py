@@ -91,7 +91,7 @@ vigilante = Role(
     ["Town Killing"],
     "Murder",
     2,
-    ["Heal Immune"],
+    ["None"],
     ["None"],
     "a dirty ex-cop who will ignore the law to enact justice.",
     "The vigilante can choose to murder one person each night. This will not kill anyone who has night immunity - like the Serial Killer, but can work on weaker roles. This ability can kill town members too. Be conservative with your gun, you only have so many bullets.",
@@ -118,9 +118,21 @@ godfather = Role(
     "Murder",
     666,
     ["Detect Immune", "Night Immune"],
-    ["Kills Role Blockers"],
+    ["None"],
     "the leader of the town's organized mafia syndicate.",
-    "The Godfather may vote on who he should go kill each night. Unlike other mafia roles whose votes count for one, his vote counts for three. The Godfather should try to lead his companions to victory by directing their actions.",
+    "The Godfather may vote on who he should go kill each night. Unlike other mafia roles whose votes count for one, his vote counts for two. The Godfather should try to lead his companions to victory by directing their actions.",
+    1)  # Role Priority
+
+mafioso = Role(
+    "Mafioso",
+    "Mafia",
+    ["Mafia Killing"],
+    "Murder",
+    666,
+    ["None"],
+    ["None"],
+    "the new, inexperienced leader of the town's organized mafia syndicate.",
+    "The Mafioso may vote on who he should go kill each night. Unlike other mafia roles whose votes count for one, his vote counts for two. The Mafioso should try to lead his companions to victory by directing their actions.",
     1)  # Role Priority
 
 agent = Role(
@@ -149,7 +161,8 @@ consort = Role(
 
 # Included roles
 ##townRolesList = [citizen, bodyguard, lookout, escort, doctor, sheriff, mayor, vigilante]
-townRolesList = [vigilante, vigilante, vigilante, vigilante]
+townRolesList = [vigilante, sheriff, doctor, bodyguard]
 neutralRolesList = [serial_killer]
 ##mafiaRolesList = [godfather, godfather, godfather]
 mafiaRolesList = [godfather, agent, consort]
+scriptedMafiaRole = [mafioso, godfather]

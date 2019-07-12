@@ -16,3 +16,21 @@ Town Killing
 
 Neutral Killing
 	Serial Killer
+
+Mafia Killing
+    Godfather
+    Mafioso
+
+Mafia Support
+    Consigliere
+    Agent
+
+Mafia Deception
+
+townGovernmentRoles = []
+townProtectiveRoles = []
+townInvestigativeRoles = []
+townKillingRoles = []
+neutralKillingRoles = []
+mafiaKillingRoles = []
+mafiaSupportRoles = []

@@ -214,7 +214,7 @@ def heal_ability(player):
             player.target.living = True
             deathList.remove(player.target)
             player.target.info.append("\033[42mYou were brutally attacked and left for dead, but a stranger arrived and nursed you back to health.\033[49m")
-            player.info.append(player.target.name + "\033[42m" +" was brutally attacked last night. You were able to anonymously nurse them back to health.\033[49m")
+            player.info.append(player.target.name + " \033[42m" +"was brutally attacked last night. You were able to anonymously nurse them back to health.\033[49m")
     # The action was completed without issue
 
 
@@ -240,11 +240,11 @@ def watch_ability(player):
     # IMMUNITY DEPENDENCIES: None
     # STATUS DEPENDENCIES: None
     # TRAIT DEPENDENCIES: None
-    tonights_visitors = player.target.name + " \033[45m" + "was visited tonight by "
+    tonights_visitors = player.target.name + " \033[45m" + "was visited tonight by \033[0m"
     number_of_visitors = len(player.target.visitors)
     if number_of_visitors == 1:
         for visitor in player.target.visitors:
-            tonights_visitors = (tonights_visitors + (visitor.name + ".\033[49m"))
+            tonights_visitors = (tonights_visitors + visitor.name)
             player.info.append(tonights_visitors)
     elif number_of_visitors > 0:
         for visitor in player.target.visitors:
@@ -252,12 +252,12 @@ def watch_ability(player):
                 tonights_visitors = (tonights_visitors + visitor.name + ", ")
                 number_of_visitors -= 1
             else:
-                tonights_visitors = (tonights_visitors + ("and " + visitor.name + ".\033[49m"))
+                tonights_visitors = (tonights_visitors + ("and " + visitor.name))
                 number_of_visitors = 0
                 player.info.append(tonights_visitors)
         player.target.visitors.append(player)
     else:
-        tonights_visitors = (tonights_visitors + "nobody.\033[49m")
+        tonights_visitors = (tonights_visitors + "nobody.\033[0m")
         player.info.append(tonights_visitors)
         player.target.visitors.append(player)
 

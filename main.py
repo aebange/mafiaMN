@@ -13,7 +13,7 @@ from abilities import *
 from classes import Player, Role
 from file_directory import *
 from globalVars import *
-from roles import neutralRolesList, mafiaRolesList, townRolesList
+from roles import scriptedMafiaRole
 
 # TODO: Improve/Investigate slow import time.
 
@@ -174,6 +174,9 @@ def night_sequence(night_number):
         skip_turn_instruction = " Press A to skip them."
         learn_event_instruction = "press A to learn what happened tonight."
     mafia_kill_vote = {}
+    # Clear all player targets from the night before
+    for player in playerList:
+        player.target = None
     for player in playerList:
         if player.living:
             # Prompt the user to begin their turn
@@ -186,8 +189,6 @@ def night_sequence(night_number):
             night_type_writer("Good evening " + Fore.LIGHTMAGENTA_EX + player.name + Fore.RESET + ", you are a " + (
                 player.role.role_color()) + str(player.role.name) + Back.RESET + Fore.RESET + ".")
             print("You are {0}".format(player.role.description))
-            print(" ")
-            print(player.role.hint)
             print(" ")
             # Print how many more uses of a night ability the player has (if any)
             if player.uses != 666:
@@ -214,8 +215,6 @@ def night_sequence(night_number):
                     press_enter_key()
                     os.system('cls')
             elif player.role.name == "Godfather":
-                # The godfather has taken his turn
-                local_godfather_played_turn = True
                 # How much the role's vote is worth
                 mafia_vote_value = 2
                 print(Fore.LIGHTRED_EX + "Vote on one person for the mafia to hit tonight by selecting their name:" + Fore.RESET)
@@ -240,6 +239,33 @@ def night_sequence(night_number):
                         local_vote_value += mafia_vote_value
                         # Update the votes towards the target in the dictionary
                         mafia_kill_vote.update({godfather_vote_target : local_vote_value})
+                press_enter_key()
+                os.system('cls')
+            elif player.role.name == "Mafioso":
+                # How much the role's vote is worth
+                mafia_vote_value = 2
+                print(Fore.LIGHTRED_EX + "Vote on one person for the mafia to hit tonight by selecting their name:" + Fore.RESET)
+                print("-" * SCREEN_WIDTH)
+                print_remaining_players()
+                # Check to make sure the input is actually a number
+                mafioso_target = get_user_night_action_input(player)
+                # Convert the target (int) to a player object
+                if mafioso_target == "S":
+                    print("You voted to skip the night tonight.                            ")
+                else:
+                    print("You voted to kill {0} tonight, ".format(playerList[mafioso_target].name) + Fore.LIGHTRED_EX + end_turn_instruction + Fore.RESET)
+                mafioso_vote_target = get_player_target(mafioso_target)
+                # Nobody in the mafia has voted yet
+                if bool(mafia_kill_vote) is False:
+                    mafia_kill_vote.update({mafioso_vote_target : mafia_vote_value})
+                else:
+                    # Someone else has already voted to kill this person
+                    if mafioso_vote_target in mafia_kill_vote:
+                        local_vote_value = mafia_kill_vote[mafioso_vote_target]
+                        # Add the mafiosos vote value to the previous vote value
+                        local_vote_value += mafia_vote_value
+                        # Update the votes towards the target in the dictionary
+                        mafia_kill_vote.update({mafioso_vote_target : local_vote_value})
                 press_enter_key()
                 os.system('cls')
             elif player.role.name == "Consort":
@@ -444,8 +470,12 @@ def night_sequence(night_number):
             pass
     for player in playerList:
         if player.role.name == "Godfather":
-            # Set the Godfather target to the user with the most votes
-            player.target = max(mafia_kill_vote, key=mafia_kill_vote.get)
+            if player.living:
+                # Set the Godfather target to the user with the most votes
+                player.target = max(mafia_kill_vote, key=mafia_kill_vote.get)
+        elif player.role.name == "Mafioso":
+            if player.living:
+                player.target = max(mafia_kill_vote, key=mafia_kill_vote.get)
     # Player night_ability execution, create randomized form of player list to make things fair
     randomized_player_list = playerList.copy()
     random.shuffle(randomized_player_list)
@@ -486,6 +516,8 @@ def night_sequence(night_number):
                 for info in player.info:
                     print(info)
                 if not player.living:
+                    # Check to see if the player was the Godfather
+                    mafioso_replacement(player)
                     # This player is now 100% dead
                     permaDeathList.append(player)
             print(Fore.LIGHTRED_EX + end_turn_instruction_2 + Fore.RESET)
@@ -711,6 +743,9 @@ def day_sequence(day_number):
             hangedSound.play()
             print("{} has been \033[31mHANGED\033[0m.".format(local_day_player.name))
             local_day_player.living = False
+            # The player is now 100% dead
+            # Check to see if they were the Godfather and if they were, replace them
+            mafioso_replacement(local_day_player)
             permaDeathList.append(local_day_player)
             sleep(2)
             roleReveal.play()
@@ -882,6 +917,24 @@ def generate_priority_list():
 ########################################################################################################################
 
 
+# Checks to see if a player who died was the godfather and replaces him if he was
+def mafioso_replacement(player):
+    # If the godfather is dead at this point, choose a mafia member to make into a mafioso
+    if player.role.name == "Godfather" or player.role.name == "Mafioso":
+        local_mafia_list = []
+        for local_player in playerList:
+            if local_player.living:
+                if local_player.role.alignment == "Mafia":
+                    # This player is alive and in the mafia, a possible candidate
+                    local_mafia_list.append(local_player)
+        # Check to see if there's anything in this list since random.choice doesn't like empty lists
+        if local_mafia_list:
+            # Set this player's role to mafioso
+            local_selected_mafia = random.choice(local_mafia_list)
+            local_selected_mafia.role = scriptedMafiaRole[0]
+            return
+
+
 # Identify and define users, instantiating their classes
 def user_identification():
     i = 0
@@ -910,6 +963,7 @@ def user_identification():
     return player_list
 
 
+# Prompts the user to press the enter key (A button on Xbox Controller)
 def press_enter_key():
     if keyboardController:
         input()
@@ -997,7 +1051,7 @@ def user_target_input(local_options):
 
 
 # Returns a number representing an index selection value from a list of targets
-# ONLY COMPATIBLE WITH WINDOWS CONSOLE
+# ONLY COMPATIBLE WITH WINDOWS CONSOLE WHEN IN KEYBOARD MODE
 def user_day_input(local_options):
     selection = 2
     while True:
@@ -1229,6 +1283,86 @@ def commit_role_action(player):
                 dispatch[player.role.night_abilities](player)
 
 
+# Generate a set of roles to be used in this game
+def role_generation():
+    local_number_of_players = len(playerList)
+    # 5 PLYR GAME = 4 TOWN, 1 MAF, 0 SK
+    if local_number_of_players == 5:
+        local_town_prot = random.choice(townProtectiveRoles)
+        local_town_invest = random.choice(townInvestigativeRoles)
+        local_town_gov = random.choice(townGovernmentRoles)
+        local_town_random = random.choice(random.choice(random.sample((townGovernmentRoles, townInvestigativeRoles, townProtectiveRoles, townKillingRoles), 1)))
+        local_town_roles_list = [local_town_prot, local_town_gov, local_town_invest, local_town_random]
+        local_godfather = scriptedMafiaRole[1]
+        local_mafia_roles_list = [local_godfather]
+        return local_town_roles_list, local_mafia_roles_list, None
+    # 6 PLYR GAME = 4 TOWN, 2 MAF, 0 SK
+    elif local_number_of_players == 6:
+        local_town_prot = random.choice(townProtectiveRoles)
+        local_town_invest = random.choice(townInvestigativeRoles)
+        local_town_gov = random.choice(townGovernmentRoles)
+        local_town_random = random.choice(random.choice(random.sample((townGovernmentRoles, townInvestigativeRoles, townProtectiveRoles, townKillingRoles), 1)))
+        local_town_roles_list = [local_town_prot, local_town_gov, local_town_invest, local_town_random]
+        local_godfather = scriptedMafiaRole[1]
+        local_mafia_support = random.choice(mafiaSupportRoles)
+        local_mafia_roles_list = [local_godfather, local_mafia_support]
+        return local_town_roles_list, local_mafia_roles_list, None
+    # 7 PLYR GAME = 4 TOWN, 2 MAF, 1 SK
+    elif local_number_of_players == 7:
+        local_town_prot = random.choice(townProtectiveRoles)
+        local_town_invest = random.choice(townInvestigativeRoles)
+        local_town_gov = random.choice(townGovernmentRoles)
+        local_town_random = random.choice(random.choice(random.sample((townGovernmentRoles, townInvestigativeRoles, townProtectiveRoles, townKillingRoles), 1)))
+        local_town_roles_list = [local_town_prot, local_town_gov, local_town_invest, local_town_random]
+        local_godfather = scriptedMafiaRole[1]
+        local_mafia_support = random.choice(mafiaSupportRoles)
+        local_mafia_roles_list = [local_godfather, local_mafia_support]
+        local_serial_killer = neutralKillingRoles
+        return local_town_roles_list, local_mafia_roles_list, local_serial_killer
+    # 8 PLYR GAME = 5 TOWN, 2 MAF, 1 SK
+    elif local_number_of_players == 8:
+        local_town_prot = random.choice(townProtectiveRoles)
+        local_town_invest = random.choice(townInvestigativeRoles)
+        local_town_gov = random.choice(townGovernmentRoles)
+        local_town_killing = random.choice(townKillingRoles)
+        local_town_random = random.choice(random.choice(random.sample((townGovernmentRoles, townInvestigativeRoles, townProtectiveRoles, townKillingRoles), 1)))
+        local_town_roles_list = [local_town_prot, local_town_gov, local_town_invest, local_town_random, local_town_killing]
+        local_godfather = scriptedMafiaRole[1]
+        local_mafia_support = random.choice(mafiaSupportRoles)
+        local_mafia_roles_list = [local_godfather, local_mafia_support]
+        local_serial_killer = neutralKillingRoles
+        return local_town_roles_list, local_mafia_roles_list, local_serial_killer
+    # 9 PLYR GAME = 5 TOWN, 3 MAF, 1 SK
+    elif local_number_of_players == 8:
+        local_town_prot = random.choice(townProtectiveRoles)
+        local_town_invest = random.choice(townInvestigativeRoles)
+        local_town_gov = random.choice(townGovernmentRoles)
+        local_town_killing = random.choice(townKillingRoles)
+        local_town_random = random.choice(random.choice(random.sample((townGovernmentRoles, townInvestigativeRoles, townProtectiveRoles, townKillingRoles), 1)))
+        local_town_roles_list = [local_town_prot, local_town_gov, local_town_invest, local_town_random, local_town_killing]
+        local_godfather = scriptedMafiaRole[1]
+        local_mafia_support1 = random.choice(mafiaSupportRoles)
+        local_mafia_support2 = random.choice(mafiaSupportRoles)
+        local_mafia_roles_list = [local_godfather, local_mafia_support1, local_mafia_support2]
+        local_serial_killer = neutralKillingRoles
+        return local_town_roles_list, local_mafia_roles_list, local_serial_killer
+    # 10 PLYR GAME = 6 TOWN, 3 MAF, 1 SK
+    elif local_number_of_players == 8:
+        local_town_prot = random.choice(townProtectiveRoles)
+        local_town_invest = random.choice(townInvestigativeRoles)
+        local_town_gov = random.choice(townGovernmentRoles)
+        local_town_killing = random.choice(townKillingRoles)
+        local_town_random1 = random.choice(random.choice(random.sample((townGovernmentRoles, townInvestigativeRoles, townProtectiveRoles, townKillingRoles), 1)))
+        local_town_random2 = random.choice(random.choice(random.sample((townGovernmentRoles, townInvestigativeRoles, townProtectiveRoles, townKillingRoles), 1)))
+        local_town_roles_list = [local_town_prot, local_town_gov, local_town_invest, local_town_random1, local_town_random2, local_town_killing]
+        local_godfather = scriptedMafiaRole[1]
+        local_mafia_support1 = random.choice(mafiaSupportRoles)
+        local_mafia_support2 = random.choice(mafiaSupportRoles)
+        local_mafia_roles_list = [local_godfather, local_mafia_support1, local_mafia_support2]
+        local_serial_killer = neutralKillingRoles
+        return local_town_roles_list, local_mafia_roles_list, local_serial_killer
+
+
 ########################################################################################################################
 # CODE EXECUTION
 ########################################################################################################################
@@ -1243,6 +1377,9 @@ generate_type_list()
 # Generate the sequence of sounds used in the typing sound effect
 clickList = generate_click_list()
 
+# Set up the roles for this game
+townRolesList, mafiaRolesList, neutralRolesList = role_generation()
+
 # Prompt the users to identify themselves
 playerList = user_identification()
 
@@ -1252,7 +1389,7 @@ user_role_distribution(playerList, (neutralRolesList + mafiaRolesList + townRole
 teamDict = generate_teams_dict()
 
 # Start the game
-# startup()
+startup()
 
 nightNumber = 1
 dayNumber = 1
